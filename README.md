@@ -3,4 +3,8 @@
 Experimental client for processing text and audio of the pali canon and of its english translations by Venerable Sujato. Data copied from SuttaCentral github repo.
 
 Run a local webserver in chrome and serve index.html
-mouse-click or space-bar advances the read-out from MN 131
+
+Mouse-click or space-bar advances the reading from MN 131
+
+Uses p5.js and p5.speech.js
+Credit to Daniel Shiffman for the demo of p5.speech
