@@ -36,15 +36,15 @@ let voiceId =  54;
 let sutta_po;
 let bg_img_1;
 let sentence;
-
 let sutta_string = './suttas/sc-data-master/po_text/pli-en/mn/';
-
-
+let a_new_sutta;
+let new_sutta_loaded = false;
+let input;
+let button;
 
 function preload() { 
-  sutta_po = loadStrings('./suttas/sc-data-master/po_text/pli-en/mn/mn002.po');
+  sutta_po = loadStrings('./suttas/sc-data-master/po_text/pli-en/mn/mn001.po');
   bg_img_1 = loadImage('./img/jetavana.jpg');
-  //console.log(sutta_po);
 }
 
 function parse(sutta) {
@@ -55,29 +55,37 @@ function parse(sutta) {
   for (let i = 0; i < sutta.length; i++){
     v = sutta[i].split('"');
     if (v[0] === "msgstr " && v[1] !== "" ) {
-      console.log(v[1]);
       verse[verse_count++] = v[1];
     }
     if (v[0] === "msgid " && v[1] !== "" ){
       pali[pali_count++] = v[1];
     }
   }
-  console.log(verse);
+  counter = 0;
+  pali_counter = 0;
+  //console.log(verse);
   //console.log(pali);
 }
 
+function ask_for_Sutta() {
+  input = createInput();
+  input.position(20, 65);
+
+  button = createButton('submit');
+  button.position(input.x + input.width, 65);
+  button.mousePressed(loadSutta);
+}
+
 function setup() {
-  //createCanvas(2500, 1875);
-  // sutta_po = await loadStrings('./suttas/sc-data-master/po_text/pli-en/mn/mn002.po');
   createCanvas(1250,938);
   background(bg_img_1);
-  //load default sutta
+  // create ui for sutta query
+  ask_for_Sutta();
+  // load mn 1 by default
   parse(sutta_po);
-  console.log(verse);
 
-  speech = new p5.Speech(); // speech synthesis object
+  speech = new p5.Speech(); 
   speech.onLoad = voiceReady;
-
   speech.interrupt = true;
   speech.started(startSpeaking);
   speech.ended(endSpeaking);
@@ -85,9 +93,19 @@ function setup() {
   function voiceReady() {
     voice =  speech.voices[voiceId];
     console.log('voice ready');
-    console.log(speech.voices);
   }
 }
+
+function loadSutta() {
+  loadNewSutta().
+      then(result => {
+        a_new_sutta = result.got_sutta;
+        console.log(a_new_sutta);
+      }).
+      catch(err => console.error(err));
+  new_sutta_loaded = true;
+}
+
 
 function startSpeaking() {
   background(bg_img_1);
@@ -95,36 +113,33 @@ function startSpeaking() {
 }
 
 function endSpeaking() {
-  
+  speech.cancel();
 }
 
 function keyPressed() {
   console.log(key);
   if (key == " ") {
+    if (new_sutta_loaded) {
+      // the parsing has to be decoupled from the loading
+      parse(a_new_sutta);
+      new_sutta_loaded = false;
+    }
     speak_now();
   }
-  if (key == "b") {
-    bhasati();
-  }
-  if (key == "z") {
-    loadNewSutta().
-      then(result => {
-        
-        let a_new_sutta = result.got_sutta;
-        console.log(a_new_sutta.length);
-        for (let i = 0; i < a_new_sutta.length; i++){
-          console.log(a_new_sutta[i]);
-        }
-        // createP (a_new_sutta);
-        // console.log(a_new_sutta[31]);
-        //parse(result.got_sutta);
-      }).
-      catch(err => console.error(err));
-  }
+  // if (key == "b") {
+  //   bhasati();
+  // }
+  // if (key == "z") {
+  //   speech.cancel();
+  //   loadSutta();
+  // }
 }
 
 async function loadNewSutta() {
-  let new_sutta = await loadStrings('./suttas/sc-data-master/po_text/pli-en/mn/mn131.po');
+  let sutta_number = input.value();
+  let new_sutta_path = sutta_string + sutta_number + '.po';
+  // let new_sutta = await loadStrings('./suttas/sc-data-master/po_text/pli-en/mn/mn131.po');
+  let new_sutta = await loadStrings(new_sutta_path);
   return {
     got_sutta: new_sutta
   }
@@ -137,7 +152,6 @@ function bhasati () {
   // speech.setVoice(voice.name);
   // speech.speak(pali[pali_counter]); 
   sentence = pali[pali_counter];
-  // createP(verse[counter]);
   pali_counter+=1;
   if (pali_counter == pali.length) {
     pali_counter = 0;
@@ -150,7 +164,6 @@ function speak_now () {
   speech.setVoice(voice.name);
   speech.speak(verse[counter]); 
   sentence = verse[counter];
-  // createP(verse[counter]);
   counter+=1;
   pali_counter = counter;
   if (counter == verse.length) {
@@ -158,18 +171,13 @@ function speak_now () {
   }
 }
 
-function mousePressed() {
-  // speak_now();
-}
-
 function drawText () {
   let fontsize = 16;
-  //sentence += ' ';
   let textlength = textWidth(sentence + ' ');
   if (counter === 1){
     textlength *= 2;
   }
-  console.log(textlength)
+  // console.log(textlength)
   if (textlength > width) {
     drawText_extra();
   } else {
@@ -184,16 +192,18 @@ function drawText () {
 
 function drawText_extra () {
   let fontsize = 16;
-  //sentence += ' ';
-  
   let splitString = split(sentence, '.');
+  if (splitString.length === 2) {
+    splitString = [];
+    splitString = split(sentence, ',');
+  }
+
   console.log(splitString);
   for (let i = 0 ; i < splitString.length; i++) {
     if (splitString[i] === " ") {
       continue;
     }
     let textlength = textWidth(splitString[i] + ' ');
-  // console.log(textlength);
     textFont("Helvetica", fontsize);
     noStroke();
     fill(255);
@@ -203,7 +213,3 @@ function drawText_extra () {
   }
   
 }
-
-// function draw () {
-//   drawText ();
-// }
