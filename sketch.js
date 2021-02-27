@@ -68,9 +68,9 @@ function parse(sutta) {
 }
 
 function ask_for_Sutta() {
-  input = createInput();
+  input = createInput("mn001");
   input.position(20, 65);
-
+  
   button = createButton('submit');
   button.position(input.x + input.width, 65);
   button.mousePressed(loadSutta);
