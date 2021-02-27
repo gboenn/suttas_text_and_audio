@@ -2,6 +2,8 @@
 
 Experimental client for processing text and audio of the pali canon and of its english translations by Venerable Sujato. Data copied from SuttaCentral github repo.
 
+Important note: At the moment only the suttas from the middle-length discourse, mn001 - mn152, are included.
+
 Run a local webserver in chrome and serve index.html
 
 Pressing space-bar advances a reading from the sutta line by line
