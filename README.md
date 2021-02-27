@@ -4,7 +4,7 @@ Experimental client for processing text and audio of the pali canon and of its e
 
 Run a local webserver in chrome and serve index.html
 
-Mouse-click or space-bar advances the reading from MN 131
+Space-bar advances the reading from MN 131
 
 Uses p5.js and p5.speech.js
 Credit to Daniel Shiffman for the demo of p5.speech
