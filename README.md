@@ -19,7 +19,7 @@ Plans:
 - voice navigation
 - a map and images of places mentioned in the sutta that is selected for reading
 - links to explantions, for example about the names of venerables and lay-persons mentioned in the suttas
-- sutta classification, for example according to the simile used, or core teachings, such as the four noble truths, noble eightfold path, dependent origination, and rebirth
+- sutta classification, for example according to the simile used, or according to a core teaching, such as the four noble truths, the noble eightfold path, dependent origination, and rebirth.
 
 This app uses p5.js and p5.speech.js
 Thanks to Daniel Shiffman for the demos of p5.speech
