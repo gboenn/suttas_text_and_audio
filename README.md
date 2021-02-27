@@ -23,3 +23,7 @@ Plans:
 
 This app uses p5.js and p5.speech.js
 Credit to Daniel Shiffman for the demo of p5.speech
+
+Jetavana image attribution:
+myself, CC BY-SA 2.5 <https://creativecommons.org/licenses/by-sa/2.5>, via Wikimedia Commons
+https://commons.wikimedia.org/wiki/File:Jetavana.jpg
