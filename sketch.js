@@ -50,8 +50,8 @@ function preload() {
 function parse(sutta) {
   verse = [];
   pali = [];
-  verse_count = 0;
-  pali_count = 0;
+  let verse_count = 0;
+  let pali_count = 0;
   for (let i = 0; i < sutta.length; i++){
     v = sutta[i].split('"');
     if (v[0] === "msgstr " && v[1] !== "" ) {
@@ -129,16 +129,11 @@ function keyPressed() {
   // if (key == "b") {
   //   bhasati();
   // }
-  // if (key == "z") {
-  //   speech.cancel();
-  //   loadSutta();
-  // }
 }
 
 async function loadNewSutta() {
   let sutta_number = input.value();
   let new_sutta_path = sutta_string + sutta_number + '.po';
-  // let new_sutta = await loadStrings('./suttas/sc-data-master/po_text/pli-en/mn/mn131.po');
   let new_sutta = await loadStrings(new_sutta_path);
   return {
     got_sutta: new_sutta
