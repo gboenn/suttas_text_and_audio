@@ -36,7 +36,7 @@ let voiceId =  54;
 // let sutta_po;
 let bg_img_1;
 let sentence;
-let sutta_string = './bilara-data-published/translation/en/sujato/sutta/mn/';
+let sutta_string = './bilara-data-published/translation/en/sujato/sutta/';
 let a_new_sutta;
 let new_sutta_loaded = false;
 let input;
@@ -130,12 +130,46 @@ function keyPressed() {
 
 async function loadNewSutta() {
   let sutta_number = input.value();
-  let new_sutta_path = sutta_string + sutta_number + '_translation-en-sujato.json';
+  let pitaka = resolve_pitaka (sutta_number); // resolve pitika folder "mn/";
+  let new_sutta_path = sutta_string + pitaka + sutta_number + '_translation-en-sujato.json';
   let response = await fetch(new_sutta_path);
   let new_sutta = await response.json();
   return {
     got_sutta: new_sutta
   }
+}
+
+function resolve_pitaka (sutta_number) {
+  let folder = "";
+  let result = sutta_number.match('^mn');
+  if (result && result.index === 0) { 
+    folder = "mn/";
+  }
+  result = sutta_number.match('^dn');
+  if (result && result.index === 0) { 
+    folder = "dn/";
+  }
+  result = sutta_number.match('^an');
+  if (result && result.index === 0) { 
+    folder = "an/";
+    // then resolve subfolders
+    // an1 an2 an3 ... an11
+  }
+  result = sutta_number.match('^kn');
+  if (result && result.index === 0) { 
+    folder = "kn/";
+    // then resolve subfolders
+    // dhp iti kp thag thig ud
+    // iti -> vagga1 vagga2 ... vagga11
+    // ud -> vagga1 vagga2 ... vagga8
+  }
+  result = sutta_number.match('^sn');
+  if (result && result.index === 0) { 
+    folder = "sn/";
+    // then resolve subfolders
+    // sn1 sn2 sn3 ... sn56
+  }
+  return folder;
 }
 
 function bhasati () {
