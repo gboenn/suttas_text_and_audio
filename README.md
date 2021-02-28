@@ -1,8 +1,8 @@
 # suttas_text_and_audio
 
-Experimental client for processing text and audio of the pali canon and of its english translations by Venerable Sujato. Data copied from SuttaCentral github repo.
+Experimental client for processing text and audio of the pali canon and of its english translations by Venerable Sujato. The translations and root texts have been forked from https://github.com/suttacentral/bilara-data
 
-Important note: At the moment only the suttas from the middle-length discourse, mn001 - mn152, are included.
+Important note: At the moment only the suttas from the long and the middle-length discourse are working. The interface for the Pali is also not finished yet.
 
 Usage: 
 - Run a local webserver in chrome and serve index.html
@@ -10,8 +10,8 @@ Usage:
 - Use the text input at the top to load a sutta. 
 
 Use the following format for looking up a sutta:
-'mn' followed by three digits for the number of the sutta.
-For example, 'mn001' loads the first sutta of the middle-length discourses, 'mn002' the second, 'mn003' the third, until 'mn152' for the last sutta of the middle-length discourses.
+'mn' or 'dn' followed by the index number of the sutta.
+For example, 'mn1' loads the first sutta of the middle-length discourses, 'dn1' loads the first sutta of the long discourses. 
 
 Plans:
 - better navigation
