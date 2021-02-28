@@ -33,17 +33,18 @@ let voiceId =  54;
   //Veena (ind) 39
   //Google हिन्दी 54
 
-let sutta_po;
+// let sutta_po;
 let bg_img_1;
 let sentence;
-let sutta_string = './suttas/sc-data-master/po_text/pli-en/mn/';
+let sutta_string = './bilara-data-published/translation/en/sujato/sutta/mn/';
 let a_new_sutta;
 let new_sutta_loaded = false;
 let input;
 let button;
 
 function preload() { 
-  sutta_po = loadStrings('./suttas/sc-data-master/po_text/pli-en/mn/mn001.po');
+  ask_for_Sutta();
+  loadSutta();
   bg_img_1 = loadImage('./img/jetavana.jpg');
 }
 
@@ -52,15 +53,11 @@ function parse(sutta) {
   pali = [];
   let verse_count = 0;
   let pali_count = 0;
-  for (let i = 0; i < sutta.length; i++){
-    v = sutta[i].split('"');
-    if (v[0] === "msgstr " && v[1] !== "" ) {
-      verse[verse_count++] = v[1];
-    }
-    if (v[0] === "msgid " && v[1] !== "" ){
-      pali[pali_count++] = v[1];
-    }
-  }
+
+  for (line in sutta) {
+    verse[verse_count++] = sutta[line];
+  }  
+
   counter = 0;
   pali_counter = 0;
   //console.log(verse);
@@ -68,7 +65,7 @@ function parse(sutta) {
 }
 
 function ask_for_Sutta() {
-  input = createInput("mn001");
+  input = createInput("mn1");
   input.position(20, 65);
   
   button = createButton('submit');
@@ -82,7 +79,7 @@ function setup() {
   // create ui for sutta query
   ask_for_Sutta();
   // load mn 1 by default
-  parse(sutta_po);
+  //parse(sutta_po);
 
   speech = new p5.Speech(); 
   speech.onLoad = voiceReady;
@@ -133,8 +130,9 @@ function keyPressed() {
 
 async function loadNewSutta() {
   let sutta_number = input.value();
-  let new_sutta_path = sutta_string + sutta_number + '.po';
-  let new_sutta = await loadStrings(new_sutta_path);
+  let new_sutta_path = sutta_string + sutta_number + '_translation-en-sujato.json';
+  let response = await fetch(new_sutta_path);
+  let new_sutta = await response.json();
   return {
     got_sutta: new_sutta
   }
