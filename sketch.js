@@ -77,7 +77,7 @@ function setup() {
   createCanvas(1250,938);
   background(bg_img_1);
   // create ui for sutta query
-  ask_for_Sutta();
+  //ask_for_Sutta();
   // load mn 1 by default
   //parse(sutta_po);
 
