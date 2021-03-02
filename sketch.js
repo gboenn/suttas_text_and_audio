@@ -131,7 +131,8 @@ function keyPressed() {
 async function loadNewSutta() {
   let sutta_number = input.value();
   let pitaka = resolve_pitaka (sutta_number); // resolve pitika folder "mn/";
-  let new_sutta_path = sutta_string + pitaka + sutta_number + '_translation-en-sujato.json';
+  // let new_sutta_path = sutta_string + pitaka + sutta_number + '_translation-en-sujato.json';
+  let new_sutta_path = sutta_string + pitaka + '_translation-en-sujato.json';
   let response = await fetch(new_sutta_path);
   let new_sutta = await response.json();
   return {
@@ -143,31 +144,123 @@ function resolve_pitaka (sutta_number) {
   let folder = "";
   let result = sutta_number.match('^mn');
   if (result && result.index === 0) { 
-    folder = "mn/";
+    folder = "mn/" + sutta_number;
+    return folder;
   }
   result = sutta_number.match('^dn');
   if (result && result.index === 0) { 
-    folder = "dn/";
+    folder = "dn/" + sutta_number;
+    return folder;
   }
+
   result = sutta_number.match('^an');
   if (result && result.index === 0) { 
     folder = "an/";
     // then resolve subfolders
     // an1 an2 an3 ... an11
+    let m_exp = new RegExp(/^an(\d+)\.(\d+)-?(\d+)?/); 
+    num = sutta_number.match(m_exp);
+    console.log(num);
+    if (num) { 
+      sub_num = num[1];
+      if (sub_num < 1 || sub_num > 11) {
+        console.error("Sutta not found");
+      } else {
+        folder += "an" + sub_num + "/" + sutta_number;;
+      }
+      console.log(folder);
+      return folder;
+    }
   }
-  result = sutta_number.match('^kn');
+
+  // kn suttas are named after the tags and the path where they are stored must be resolved
+  //  kn/
+  //   // dhp/ iti/ kp/ thag/ thig/ ud/
+  //   // iti -> vagga1 vagga2 ... vagga11
+  //   // ud -> vagga1 vagga2 ... vagga8
+  result = sutta_number.match('^dhp');  
   if (result && result.index === 0) { 
-    folder = "kn/";
-    // then resolve subfolders
-    // dhp iti kp thag thig ud
-    // iti -> vagga1 vagga2 ... vagga11
-    // ud -> vagga1 vagga2 ... vagga8
+    folder = "kn/dhp/";
+    let m_exp = new RegExp(/^dhp(\d+)/); 
+    num = sutta_number.match(m_exp);
+    console.log(num);
+    if (num) { 
+      sub = num[1];
+      if (sub < 1 || sub > 423) {
+        console.error("Sutta not found");
+      } else {
+        if (sub >= 1 && sub <= 20) {
+          sutta_number = "dhp1-20"
+        }
+        if (sub >= 21 && sub <= 32) {
+          sutta_number = "dhp21-32"
+        }
+        if (sub >= 33 && sub <= 43) {
+          sutta_number = "dhp33-43"
+        }
+        if (sub >= 44 && sub <= 59) {
+          sutta_number = "dhp44-59"
+        }
+        if (sub >= 60 && sub <= 75) {
+          sutta_number = "dhp60-75"
+        }
+        if (sub >= 76 && sub <= 89) {
+          sutta_number = "dhp76-89"
+        }
+        if (sub >= 90 && sub <= 99) {
+          sutta_number = "dhp90-99"
+        }
+        if (sub >= 100 && sub <= 115) {
+          sutta_number = "dhp100-115"
+        }
+        if (sub >= 116 && sub <= 128) {
+          sutta_number = "dhp116-128"
+        }
+        if (sub >= 129 && sub <= 145) {
+          sutta_number = "dhp129-145"
+        }
+
+        folder += sutta_number;
+        console.log(folder);
+        return folder;
+      }
+      
+    }
   }
+  result = sutta_number.match('^kp');  
+  if (result && result.index === 0) { 
+    folder = "kn/kp/";
+    return folder;
+  }
+  result = sutta_number.match('^thag');  
+  if (result && result.index === 0) { 
+    folder = "kn/thag/";
+    return folder;
+  }
+  result = sutta_number.match('^thig');  
+  if (result && result.index === 0) { 
+    folder = "kn/thig/";
+    return folder;
+  }
+
   result = sutta_number.match('^sn');
   if (result && result.index === 0) { 
     folder = "sn/";
     // then resolve subfolders
     // sn1 sn2 sn3 ... sn56
+    let m_exp = new RegExp(/^sn(\d+)\.(\d+)-?(\d+)?/); 
+    num = sutta_number.match(m_exp);
+    console.log(num);
+    if (num) { 
+      sub_num = num[1];
+      if (sub_num < 1 || sub_num > 56) {
+        console.error("Sutta not found");
+      } else {
+        folder += "sn" + sub_num + "/" + sutta_number;
+      }
+      console.log(folder);
+      return folder;
+    }
   }
   return folder;
 }
