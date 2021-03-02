@@ -76,13 +76,11 @@ function ask_for_Sutta() {
 function setup() {
   createCanvas(1250,938);
   background(bg_img_1);
-  // create ui for sutta query
-  //ask_for_Sutta();
-  // load mn 1 by default
-  //parse(sutta_po);
 
   speech = new p5.Speech(); 
   speech.onLoad = voiceReady;
+  // one can forward verses only with interrupt = true;
+  // otherwise speak calls are queued
   speech.interrupt = true;
   speech.started(startSpeaking);
   speech.ended(endSpeaking);
@@ -110,7 +108,7 @@ function startSpeaking() {
 }
 
 function endSpeaking() {
-  speech.cancel();
+  //speech.cancel();
 }
 
 function keyPressed() {
@@ -279,11 +277,22 @@ function bhasati () {
 }
 
 function speak_now () {
+  sentence = verse[counter];
+  // need to split up verses that are long lists > 299 charachters
+  console.log("length: " + sentence.length);
+  if (sentence.length > 299) {
+    let utterance = sentence.split(',');
+    verse.splice(counter, 1, utterance[0]); 
+    for (let i = 1; i < utterance.length; i++){
+      verse.splice(counter+i, 0, utterance[i]); 
+    }
+  } 
+  sentence = verse[counter];
   speech.setRate(1);
   speech.setPitch(1);
   speech.setVoice(voice.name);
-  speech.speak(verse[counter]); 
-  sentence = verse[counter];
+  speech.speak(sentence);
+  
   counter+=1;
   pali_counter = counter;
   if (counter == verse.length) {
