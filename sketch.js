@@ -1,4 +1,4 @@
-// http://127.0.0.1:8887/
+// app to load search and listen to the suttas of the pali canon
 // Georg Boenn, 2021
 
 // after an example by
@@ -129,6 +129,7 @@ function keyPressed() {
 async function loadNewSutta() {
   let sutta_number = input.value();
   let pitaka = resolve_pitaka (sutta_number); // resolve pitika folder "mn/";
+  // if pitaka === "" then throw error
   // let new_sutta_path = sutta_string + pitaka + sutta_number + '_translation-en-sujato.json';
   let new_sutta_path = sutta_string + pitaka + '_translation-en-sujato.json';
   let response = await fetch(new_sutta_path);
@@ -287,6 +288,7 @@ function speak_now () {
       verse.splice(counter+i, 0, utterance[i]); 
     }
   } 
+  
   sentence = verse[counter];
   speech.setRate(1);
   speech.setPitch(1);
