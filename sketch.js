@@ -315,7 +315,7 @@ function drawText () {
     textFont("Helvetica", fontsize);
     noStroke();
     fill(255);
-    rect(0, height - (height*0.618), textlength*1.06, fontsize*2);
+    rect(0, height - (height*0.618), textlength*1.1, fontsize*2);
     fill(0);
     text(sentence, 10, height - (height*0.618) + fontsize + 6);
   }
@@ -329,6 +329,19 @@ function drawText_extra () {
     splitString = split(sentence, ',');
   }
 
+  // check if any of the split verses is still too long.
+  let check_length = false;
+  for (let i = 0 ; i < splitString.length; i++) {
+    let textlength = textWidth(splitString[i] + ' ');
+    if (textlength > width) {
+      check_length = true;
+      break;
+    }
+  }
+  if (check_length) {
+    splitString = split(sentence, '—');
+  }
+
   console.log(splitString);
   for (let i = 0 ; i < splitString.length; i++) {
     if (splitString[i] === " ") {
@@ -338,7 +351,7 @@ function drawText_extra () {
     textFont("Helvetica", fontsize);
     noStroke();
     fill(255);
-    rect(0, (height+i*fontsize*2) - (height*0.618), textlength*1.06, fontsize*2);
+    rect(0, (height+i*fontsize*2) - (height*0.618), textlength*1.1, fontsize*2);
     fill(0);
     text(splitString[i], 10, (height+i*fontsize*2) - (height*0.618) + fontsize + 6);
   }
