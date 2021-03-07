@@ -4,8 +4,9 @@ import re
 path = "./bilara-data-published/translation/en/sujato/sutta";
 
 class Sutta_search:
-    def __init__(self, search_string, cached_directories):
-        self.search_string = search_string
+    def __init__(self, cached_directories):
+        self.search_string = []
+        self.search_string_cache = []
         self.cached_directories = cached_directories
         self.search_matches = []
         self.search_lines = []
@@ -15,6 +16,7 @@ class Sutta_search:
 
     def set_search_string(self, new_search_string):
         self.search_string = new_search_string
+        self.search_string_cache.append(new_search_string)
 
     def new_search(self):
         f = open(self.cached_directories, "r");
@@ -32,7 +34,24 @@ class Sutta_search:
                     #print(res)
                     self.search_matches.append(res)
 
+    def search_cached_lines(self):
+        temp = []
+        self.search_matches = []
+        s = self.search_lines
+        for line in s:
+            if re.search(self.search_string, line):
+                line.rstrip("\n")
+                print (line)
+                temp.append(line)
+                res = re.split(self.search_string, line)
+                res = res[1].split()
+                #res = res[0].rstrip(',.:!?\'\"”')
+                #print(res)
+                self.search_matches.append(res[0])
+        self.search_lines = temp
+        
     def create_histogram(self):
+        self.search_histo = []
         self.search_matches.sort()
         temp = []
         for w in self.search_matches:
@@ -45,16 +64,19 @@ class Sutta_search:
     
     def analyze_histogram(self):
         self.total_matches = 0
+        self.result_histo = []
         sorted_histo = []
         for k in self.search_histo:
             sorted_histo.append ([k[0], k[1]])
             self.total_matches += k[1]
 
-        print(self.total_matches, "matches")
+        print(self.total_matches, "matches for ", self.search_string_cache)
         self.result_histo = sorted(sorted_histo, key=lambda x: x[1], reverse=True)
         for k in self.result_histo: 
             print (k[0], "," , k[1], ",")
 
+    def get_next_word(self, rank):
+        return self.result_histo[rank]
 
 # r = ["was staying at ", "was staying near "]
 # r = ["Venerable "]
@@ -70,62 +92,25 @@ class Sutta_search:
 
 def main():
     directory_list = "./sutta_files.txt"
-    r = ["was staying at ", "was staying near "]
-    s = Sutta_search(r[0], directory_list)
+    # r = ["was staying at ", "was staying near "]
+    r = ["Venerable"]
+    #r = ["There are"]
+    s = Sutta_search(directory_list)
     for k in r:
         s.set_search_string(k)
-    s.new_search()
+        s.new_search()
     s.create_histogram()
     s.analyze_histogram()
-    
+#    print(s.get_next_word(0)[0])
+ 
+    for i in range(10):
+        r[0] += " " + s.get_next_word(0)[0]
+        print("searching:", r)
+        s.set_search_string(r[0])
+        s.search_cached_lines()
+        s.create_histogram()
+        s.analyze_histogram()
+
+
 if __name__ == "__main__":
     main()
-
-
-# matches = []
-# histo = []
-# def grep_suttas (regex_string):
-#     f = open("sutta_files.txt", "r");
-#     for x in f:
-#         sfile = x.rstrip("\n")
-#         s = open(sfile, "r")
-#         for line in s:
-#             if re.search(regex_string, line):
-#                 line.rstrip("\n")
-#                 print (line)
-#                 res = re.split(regex_string, line)
-#                 res = res[1].split()
-#                 res = res[0].rstrip(',.:!?\'\"”')
-#                 # res_2 = res_1.rstrip('.')
-#                 # res = res_2.rstrip(':')
-#                 print(res)
-#                 matches.append(res)
-
-# def histo_words ():
-#     matches.sort()
-#     temp = []
-#     for w in matches:
-#         if (temp.count(w) == 0):
-#             p = []
-#             p.append(w)
-#             p.append(matches.count(w))
-#             histo.append(p)
-#             temp.append(w)
-
-# for k in r:
-#     print("searching for: ", k)
-#     grep_suttas(k)
-
-# histo_words()
-
-# total = 0
-# sorted_histo = []
-# for k in histo:
-#     sorted_histo.append ([k[0], k[1]])
-#     total += k[1]
-
-# print(total, "matches")
-# result_histo = sorted(sorted_histo, key=lambda x: x[1], reverse=True)
-# for k in result_histo: 
-#     print (k[0], "," , k[1], ",")
-
