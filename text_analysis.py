@@ -18,6 +18,18 @@ class Sutta_search:
         self.search_string = new_search_string
         self.search_string_cache.append(new_search_string)
 
+    def get_search_lines(self):
+        return self.search_lines
+
+    def clear_arrays(self):
+        self.search_string_cache = []
+        self.search_matches = []
+        self.search_lines = []
+        self.search_histo = []
+        self.result_histo = []
+        self.total_matches = 0
+
+
     def new_search(self):
         f = open(self.cached_directories, "r");
         for x in f:
@@ -26,7 +38,7 @@ class Sutta_search:
             for line in s:
                 if re.search(self.search_string, line):
                     line.rstrip("\n")
-                    print (line)
+                    # print (line)
                     self.search_lines.append(line)
                     res = re.split(self.search_string, line)
                     res = res[1].split()
@@ -41,7 +53,7 @@ class Sutta_search:
         for line in s:
             if re.search(self.search_string, line):
                 line.rstrip("\n")
-                print (line)
+                # print (line)
                 temp.append(line)
                 res = re.split(self.search_string, line)
                 res = res[1].split()
@@ -78,6 +90,8 @@ class Sutta_search:
     def get_next_word(self, rank):
         return self.result_histo[rank]
 
+
+
 # r = ["was staying at ", "was staying near "]
 # r = ["Venerable "]
 # r = ["Mahāpajāpatī"]
@@ -92,24 +106,37 @@ class Sutta_search:
 
 def main():
     directory_list = "./sutta_files.txt"
-    # r = ["was staying at ", "was staying near "]
-    r = ["Venerable"]
-    #r = ["There are"]
+    r = ["was staying near"]
+    # r = ["Venerable"]
+    # r = ["There are"]
     s = Sutta_search(directory_list)
     for k in r:
         s.set_search_string(k)
         s.new_search()
     s.create_histogram()
     s.analyze_histogram()
-#    print(s.get_next_word(0)[0])
  
-    for i in range(10):
-        r[0] += " " + s.get_next_word(0)[0]
-        print("searching:", r)
-        s.set_search_string(r[0])
-        s.search_cached_lines()
+    histo1 = s.result_histo
+    histo1_len = len(histo1)
+    num_trees = 5
+    if (num_trees > histo1_len):
+        num_trees = histo1_len
+
+    for k in range(num_trees):
+        print(histo1[k][0])
+        r2 = r[0] + " " + histo1[k][0]
+        s.clear_arrays()
+        s.set_search_string(r2)
+        s.new_search()
         s.create_histogram()
         s.analyze_histogram()
+
+
+
+    # for i in range(1):
+    #     r[0] += " " + s.get_next_word(0)[0]
+    #     print("searching:", r)
+    
 
 
 if __name__ == "__main__":
