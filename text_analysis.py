@@ -1,14 +1,24 @@
 import os
 import re
 import sys
+from pathlib import Path
 
-path = "./bilara-data-published/translation/en/sujato/sutta";
+# my_file = Path("/path/to/file")
+# if my_file.is_file():
+
+# for general use:
+# change this to the full path to where bilara-data-published has been installed
+bilara_path = "./bilara-data-published/translation/en/sujato/sutta";
 
 def create_directory_cache():
-    original_stdout = sys.stdout # Save a reference to the original standard output
 
+    sutta_dirs = Path("./sutta_files.txt")
+    if sutta_dirs.is_file():
+        return
+
+    original_stdout = sys.stdout 
     fname = []
-    for root, d_names, f_names in os.walk(path):
+    for root, d_names, f_names in os.walk(bilara_path):
         for f in f_names:
             p = os.path.join(root, f)
             x = re.search(".*json$", p)
@@ -16,19 +26,11 @@ def create_directory_cache():
                 fname.append(p)
     fname.sort()
 
-    # f = open("./sutta_files.txt", "a")
-    # for d in fname:
-    #     f.write(d) 
-    #     #f.write('\n')
-    #     # print(f)
-    # f.close()
-
-    with open('filename.txt', 'w') as f:
-        sys.stdout = f # Change the standard output to the file we created.
-        print('This message will be written to a file.')
+    with open("./sutta_files.txt", 'w') as f:
+        sys.stdout = f 
         for d in fname:
-            print(f)
-        sys.stdout = original_stdout # Reset the standard output to its original value
+            print(d)
+        sys.stdout = original_stdout 
 
 
 class Sutta_search:
@@ -155,6 +157,13 @@ class Word_tree:
         self.s.analyze_histogram()
         self.string_caches.append(self.s.search_string_cache)
         self.histograms.append(self.s.result_histo)
+        # print(self.s.search_lines)
+        self.print_seach_lines()
+
+    def print_seach_lines(self):
+        print("Text references found...")
+        for k in self.s.search_lines:
+            print(k)
 
     def continue_search(self):
         histo1 = self.s.result_histo
@@ -175,9 +184,13 @@ class Word_tree:
             self.histograms.append(self.s.result_histo)
 
 def main():
+
+    search_words = sys.argv[1]
     create_directory_cache()
     directory_list = "./sutta_files.txt"
-    r = ["noble truth"]
+    r =[]
+    r.append(search_words)
+    # r = ["noble truth"]
     # r = ["Venerable"]
     # r = ["Mahāpajāpatī"]
     # r = ["nun"]
@@ -193,17 +206,18 @@ def main():
     # r = ["consciousness"]
     # r = ["name and form"]
     # r = ["was staying near"]
-    r = ["there are these"]
+    # r = ["there are these"]
     # r = ["seven factors"]
     w = Word_tree(directory_list, r)
     w.start_search()
     w.continue_search()
     looplen = len(w.string_caches)
+    print("words and their number of occurences in context...")
     for k in range(looplen):
         print(w.string_caches[k])
         print(w.histograms[k])
 
-    print("searching...searching...searching...")
+    print("composing search strings with completion...")
     
     new_search_strings = []
     for k in range(looplen-1):
