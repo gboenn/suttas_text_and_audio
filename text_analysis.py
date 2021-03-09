@@ -146,11 +146,17 @@ class Word_tree:
 
 def main():
     directory_list = "./sutta_files.txt"
-    # r = ["noble truth"]
+    r = ["noble truth"]
     # r = ["Venerable"]
     # r = ["Mahāpajāpatī"]
-    r = ["nun"]
-
+    # r = ["nun"]
+    # r = ["suffering"]
+    # r = ["impermanence"]
+    r = ["love"]
+    # r = ["Buddha"]
+    # r = ["Bodhi"]
+    # r = ["rebirth"]
+    # r = ["three "]
     w = Word_tree(directory_list, r)
     w.start_search()
     w.continue_search()
@@ -161,18 +167,16 @@ def main():
 
     print("searching...searching...searching...")
     
-    save_strings = w.string_caches
-    save_histo = w.histograms
+    new_search_strings = []
     for k in range(looplen-1):
         k+=1
-        new_search_strings = []
-        num_next_words = len(save_histo[k])
+        num_next_words = len(w.histograms[k])
         if (num_next_words > 0):
-            for j in save_histo[k]:
-                old_str = save_strings[k][0]
+            for j in w.histograms[k]:
+                old_str = w.string_caches[k][0]
                 connect_str = " "
-                if re.search(" $", old_str):
-                    old_str = old_str[:-1] #.rstrip(' ')
+                if re.search("\s+$", old_str):
+                    old_str = old_str.rstrip() 
                 if re.search("\s.$", old_str):
                     connect_str = ""
                 nstr = old_str + connect_str + j[0]
@@ -189,7 +193,8 @@ def main_old():
     # r = ["serenity of the"]
     # r = ["right effort,"]
     # r = ["Venerable Ānanda"]
-    r = ["noble truth"]
+    # r = ["noble truth"]
+    r = ["suffering"]
     s = Sutta_search(directory_list)
     for k in r:
         s.set_search_string(k)
