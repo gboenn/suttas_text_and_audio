@@ -18,9 +18,6 @@ class Sutta_search:
         self.search_string = new_search_string
         self.search_string_cache.append(new_search_string)
 
-    def get_search_lines(self):
-        return self.search_lines
-
     def clear_arrays(self):
         self.search_string_cache = []
         self.search_matches = []
@@ -28,7 +25,6 @@ class Sutta_search:
         self.search_histo = []
         self.result_histo = []
         self.total_matches = 0
-
 
     def new_search(self):
         f = open(self.cached_directories, "r");
@@ -82,10 +78,10 @@ class Sutta_search:
             sorted_histo.append ([k[0], k[1]])
             self.total_matches += k[1]
 
-        print(self.total_matches, "matches for ", self.search_string_cache)
+        # print(self.total_matches, "matches for ", self.search_string_cache)
         self.result_histo = sorted(sorted_histo, key=lambda x: x[1], reverse=True)
-        for k in self.result_histo: 
-            print (k[0], "," , k[1], ",")
+        # for k in self.result_histo: 
+        #     print (k[0], "," , k[1], ",")
 
     def get_next_word(self, rank):
         return self.result_histo[rank]
@@ -104,40 +100,131 @@ class Sutta_search:
 # r = ["mindfulness of"]
 # r = ["five "]
 
+class Word_tree:
+    def __init__(self, cached_directories, search_string_array):
+        self.string_caches = []
+        self.histograms = []
+        self.directory_list = cached_directories        
+        self.r = search_string_array
+        self.s = Sutta_search(self.directory_list)
+
+    def reset_search(self):
+        self.string_caches = []
+        self.histograms = []
+        self.s.clear_arrays()
+
+    def start_new_search(self, search_string_array):
+        self.reset_search()
+        self.r = search_string_array
+        
+    def start_search(self):
+        for k in self.r:
+            self.s.set_search_string(k)
+            self.s.new_search()
+        self.s.create_histogram()
+        self.s.analyze_histogram()
+        self.string_caches.append(self.s.search_string_cache)
+        self.histograms.append(self.s.result_histo)
+
+    def continue_search(self):
+        histo1 = self.s.result_histo
+        histo1_len = len(histo1)
+        num_trees = 10
+        if (num_trees > histo1_len):
+            num_trees = histo1_len
+
+        for k in range(num_trees):
+            # print(histo1[k][0])
+            r2 = self.r[0] + " " + histo1[k][0]
+            self.s.clear_arrays()
+            self.s.set_search_string(r2)
+            self.s.new_search()
+            self.s.create_histogram()
+            self.s.analyze_histogram()
+            self.string_caches.append(self.s.search_string_cache)
+            self.histograms.append(self.s.result_histo)
+
 def main():
     directory_list = "./sutta_files.txt"
-    r = ["was staying near"]
+    # r = ["noble truth"]
+    # r = ["Venerable"]
+    # r = ["Mahāpajāpatī"]
+    r = ["nun"]
+
+    w = Word_tree(directory_list, r)
+    w.start_search()
+    w.continue_search()
+    looplen = len(w.string_caches)
+    for k in range(looplen):
+        print(w.string_caches[k])
+        print(w.histograms[k])
+
+    print("searching...searching...searching...")
+    
+    save_strings = w.string_caches
+    save_histo = w.histograms
+    for k in range(looplen-1):
+        k+=1
+        new_search_strings = []
+        num_next_words = len(save_histo[k])
+        if (num_next_words > 0):
+            for j in save_histo[k]:
+                old_str = save_strings[k][0]
+                connect_str = " "
+                if re.search(" $", old_str):
+                    old_str = old_str[:-1] #.rstrip(' ')
+                if re.search("\s.$", old_str):
+                    connect_str = ""
+                nstr = old_str + connect_str + j[0]
+                new_search_strings.append(nstr)
+                print (nstr)
+
+def main_old():
+    string_caches = []
+    histograms = []
+    directory_list = "./sutta_files.txt"
+    # r = ["was staying near"]
     # r = ["Venerable"]
     # r = ["There are"]
+    # r = ["serenity of the"]
+    # r = ["right effort,"]
+    # r = ["Venerable Ānanda"]
+    r = ["noble truth"]
     s = Sutta_search(directory_list)
     for k in r:
         s.set_search_string(k)
         s.new_search()
     s.create_histogram()
     s.analyze_histogram()
- 
+    string_caches.append(s.search_string_cache)
+    histograms.append(s.result_histo)
+    
     histo1 = s.result_histo
     histo1_len = len(histo1)
-    num_trees = 5
+    num_trees = 10
     if (num_trees > histo1_len):
         num_trees = histo1_len
 
     for k in range(num_trees):
-        print(histo1[k][0])
+        # print(histo1[k][0])
         r2 = r[0] + " " + histo1[k][0]
         s.clear_arrays()
         s.set_search_string(r2)
         s.new_search()
         s.create_histogram()
         s.analyze_histogram()
-
+        string_caches.append(s.search_string_cache)
+        histograms.append(s.result_histo)
 
 
     # for i in range(1):
-    #     r[0] += " " + s.get_next_word(0)[0]
+    #     r[0] += " " + s.result_histo[0][0] 
     #     print("searching:", r)
-    
 
+    looplen = len(string_caches)
+    for k in range(looplen):
+        print(string_caches[k])
+        print(histograms[k])
 
 if __name__ == "__main__":
     main()
