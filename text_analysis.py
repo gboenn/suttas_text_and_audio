@@ -1,7 +1,35 @@
 import os
 import re
+import sys
 
 path = "./bilara-data-published/translation/en/sujato/sutta";
+
+def create_directory_cache():
+    original_stdout = sys.stdout # Save a reference to the original standard output
+
+    fname = []
+    for root, d_names, f_names in os.walk(path):
+        for f in f_names:
+            p = os.path.join(root, f)
+            x = re.search(".*json$", p)
+            if x:
+                fname.append(p)
+    fname.sort()
+
+    # f = open("./sutta_files.txt", "a")
+    # for d in fname:
+    #     f.write(d) 
+    #     #f.write('\n')
+    #     # print(f)
+    # f.close()
+
+    with open('filename.txt', 'w') as f:
+        sys.stdout = f # Change the standard output to the file we created.
+        print('This message will be written to a file.')
+        for d in fname:
+            print(f)
+        sys.stdout = original_stdout # Reset the standard output to its original value
+
 
 class Sutta_search:
     def __init__(self, cached_directories):
@@ -31,6 +59,7 @@ class Sutta_search:
         f = open(self.cached_directories, "r");
         for x in f:
             sfile = x.rstrip("\n")
+            # sfile = x
             s = open(sfile, "r")
             for line in s:
                 if re.search(self.search_string, line):
@@ -146,6 +175,7 @@ class Word_tree:
             self.histograms.append(self.s.result_histo)
 
 def main():
+    create_directory_cache()
     directory_list = "./sutta_files.txt"
     r = ["noble truth"]
     # r = ["Venerable"]
@@ -163,8 +193,8 @@ def main():
     # r = ["consciousness"]
     # r = ["name and form"]
     # r = ["was staying near"]
-    # r = ["there are these"]
-    r = ["seven factors"]
+    r = ["there are these"]
+    # r = ["seven factors"]
     w = Word_tree(directory_list, r)
     w.start_search()
     w.continue_search()
