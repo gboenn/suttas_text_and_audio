@@ -19,6 +19,7 @@ class Sutta_search:
         self.search_string_cache.append(new_search_string)
 
     def clear_arrays(self):
+        #print(self.search_lines)
         self.search_string_cache = []
         self.search_matches = []
         self.search_lines = []
@@ -152,11 +153,18 @@ def main():
     # r = ["nun"]
     # r = ["suffering"]
     # r = ["impermanence"]
-    r = ["love"]
+    # r = ["love"]
     # r = ["Buddha"]
     # r = ["Bodhi"]
     # r = ["rebirth"]
     # r = ["three "]
+    # r = ["happiness"]
+    # r = ["eye contact"]
+    # r = ["consciousness"]
+    # r = ["name and form"]
+    # r = ["was staying near"]
+    # r = ["there are these"]
+    r = ["seven factors"]
     w = Word_tree(directory_list, r)
     w.start_search()
     w.continue_search()
