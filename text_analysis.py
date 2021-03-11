@@ -3,9 +3,6 @@ import re
 import sys
 from pathlib import Path
 
-# my_file = Path("/path/to/file")
-# if my_file.is_file():
-
 # for general use:
 # change this to the full path to where bilara-data-published has been installed
 bilara_path = "./bilara-data-published/translation/en/sujato/sutta";
@@ -52,7 +49,7 @@ class Sutta_search:
         #print(self.search_lines)
         self.search_string_cache = []
         self.search_matches = []
-        self.search_lines = []
+        # self.search_lines = []
         self.search_histo = []
         self.result_histo = []
         self.total_matches = 0
@@ -157,7 +154,6 @@ class Word_tree:
         self.s.analyze_histogram()
         self.string_caches.append(self.s.search_string_cache)
         self.histograms.append(self.s.result_histo)
-        # print(self.s.search_lines)
         self.print_seach_lines()
 
     def print_seach_lines(self):
@@ -168,23 +164,24 @@ class Word_tree:
     def continue_search(self):
         histo1 = self.s.result_histo
         histo1_len = len(histo1)
-        num_trees = 10
+        num_trees = 9999
         if (num_trees > histo1_len):
             num_trees = histo1_len
 
         for k in range(num_trees):
-            # print(histo1[k][0])
             r2 = self.r[0] + " " + histo1[k][0]
+            r2 = r2.rstrip(')')
+            print("continue searching for: ", r2)
             self.s.clear_arrays()
             self.s.set_search_string(r2)
             self.s.new_search()
+            # self.s.search_cached_lines()
             self.s.create_histogram()
             self.s.analyze_histogram()
             self.string_caches.append(self.s.search_string_cache)
             self.histograms.append(self.s.result_histo)
 
 def main():
-
     search_words = sys.argv[1]
     create_directory_cache()
     directory_list = "./sutta_files.txt"
