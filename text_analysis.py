@@ -66,8 +66,22 @@ class Sutta_search:
                     # print (line)
                     self.search_lines.append(line)
                     res = re.split(self.search_string, line)
+                    
+                    # res_1 = res[1].split()
+                    # keep punctuation?
+                    # res = re.findall(r"[\w']+|[.,!?;]", res[0])[0]
+                    # res_2 = res_1[0].rstrip(',.:!?\'\"”')
+                    # print(res)
+                    # possible backwards search - needs separate array
+                    # bres = res[0].split()
+                    # bres_1 = bres[-1]
+                    # print(bres_1)
+                    # self.search_matches.append(bres_1)
+                    
+
                     res = res[1].split()
-                    res = res[0].rstrip(',.:!?\'\"”')
+                    print(res)
+                    res = res[0].rstrip(',.:!?\'\"”…')
                     #print(res)
                     self.search_matches.append(res)
 
