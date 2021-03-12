@@ -80,7 +80,7 @@ class Sutta_search:
                     
 
                     res = res[1].split()
-                    print(res)
+                    # print(res)
                     res = res[0].rstrip(',.:!?\'\"”…')
                     #print(res)
                     self.search_matches.append(res)
