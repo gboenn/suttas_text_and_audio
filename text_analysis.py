@@ -2,10 +2,14 @@ import os
 import re
 import sys
 from pathlib import Path
+import json
 
 # for general use:
 # change this to the full path to where bilara-data-published has been installed
 bilara_path = "./bilara-data-published/translation/en/sujato/sutta";
+pali_path = "./bilara-data-published/root/pli/ms/sutta"
+pali_file_label = "_root-pli-ms.json"
+sujato_file_label = "_translation-en-sujato.json"
 
 def create_directory_cache():
 
@@ -39,6 +43,8 @@ class Sutta_search:
         self.search_lines = []
         self.search_histo = []
         self.result_histo = []
+        self.found_suttas = []
+        self.found_verses = []
         self.total_matches = 0
 
     def set_search_string(self, new_search_string):
@@ -52,19 +58,32 @@ class Sutta_search:
         # self.search_lines = []
         self.search_histo = []
         self.result_histo = []
+        self.found_suttas = []
+        self.found_verses = []
         self.total_matches = 0
 
+    def resolve_sutta_number (self, line, prints=False):
+        sutta_number = re.split("\": \"",line)[0]
+        sutta_number = sutta_number.lstrip(" \"")
+        sutta_main_number = re.split(":",sutta_number)
+        sutta_number = sutta_main_number[0]
+        verse_number = sutta_main_number[1]
+        if (prints):
+            self.print_pali_verse(sutta_number, verse_number)
+            return
+        self.found_suttas.append(sutta_number)
+        self.found_verses.append(verse_number)
+    
     def new_search(self):
         f = open(self.cached_directories, "r");
         for x in f:
-            sfile = x.rstrip("\n")
-            # sfile = x
+            sfile = x.rstrip("\n")            
             s = open(sfile, "r")
             for line in s:
                 if re.search(self.search_string, line):
                     line.rstrip("\n")
-                    # print (line)
                     self.search_lines.append(line)
+                    self.resolve_sutta_number (line)
                     res = re.split(self.search_string, line)
                     
                     # res_1 = res[1].split()
@@ -78,11 +97,8 @@ class Sutta_search:
                     # print(bres_1)
                     # self.search_matches.append(bres_1)
                     
-
                     res = res[1].split()
-                    # print(res)
                     res = res[0].rstrip(',.:!?\'\"”…')
-                    #print(res)
                     self.search_matches.append(res)
 
     def search_cached_lines(self):
@@ -92,15 +108,30 @@ class Sutta_search:
         for line in s:
             if re.search(self.search_string, line):
                 line.rstrip("\n")
-                # print (line)
                 temp.append(line)
                 res = re.split(self.search_string, line)
                 res = res[1].split()
                 #res = res[0].rstrip(',.:!?\'\"”')
-                #print(res)
                 self.search_matches.append(res[0])
         self.search_lines = temp
         
+    def print_pali_verse(self, sutta_number, verse_number):
+        f = open(self.cached_directories, "r");
+        for x in f:
+            sfile = x.rstrip("\n")
+            snum = '\/'+sutta_number+'_'
+            if (re.search(snum, sfile)):
+                if (re.search("dn", sutta_number) or re.search("mn", sutta_number)):
+                    fpart = re.split(snum, sfile)[0]
+                    fpart2 = re.split("sutta", fpart)[1] + '/'
+                    pali_file = pali_path + fpart2 + sutta_number + pali_file_label
+                    with open(pali_file) as json_file:
+                        loaded_json = json.load(json_file)
+                        for x in loaded_json:
+                            verse = sutta_number + ":" + verse_number
+                            if (x == verse):
+                                print("%s: %s" % (x, loaded_json[x]))
+           
     def create_histogram(self):
         self.search_histo = []
         self.search_matches.sort()
@@ -130,19 +161,6 @@ class Sutta_search:
         return self.result_histo[rank]
 
 
-
-# r = ["was staying at ", "was staying near "]
-# r = ["Venerable "]
-# r = ["Mahāpajāpatī"]
-# r = ["nun named"]
-# r = ["suffering"]
-# r = [" light. "]
-# r = ["heart full of"]
-# r = [" happiness of"]
-# r = ["right efforts"]
-# r = ["mindfulness of"]
-# r = ["five "]
-
 class Word_tree:
     def __init__(self, cached_directories, search_string_array):
         self.string_caches = []
@@ -169,12 +187,18 @@ class Word_tree:
         self.string_caches.append(self.s.search_string_cache)
         self.histograms.append(self.s.result_histo)
         self.print_seach_lines()
+        print("in the suttas:")
+        print(self.s.found_suttas)
+        print("in verses:")
+        print(self.s.found_verses)
 
     def print_seach_lines(self):
         print("Text references found...")
         for k in self.s.search_lines:
             print(k)
-
+            self.s.resolve_sutta_number (k, True)
+            print("")
+            
     def continue_search(self):
         histo1 = self.s.result_histo
         histo1_len = len(histo1)
@@ -194,7 +218,11 @@ class Word_tree:
             self.s.analyze_histogram()
             self.string_caches.append(self.s.search_string_cache)
             self.histograms.append(self.s.result_histo)
-
+            print("in the suttas:")
+            print(self.s.found_suttas)
+            print("in verses:")
+            print(self.s.found_verses)
+            
 def main():
     search_words = sys.argv[1]
     create_directory_cache()
@@ -245,6 +273,12 @@ def main():
                 nstr = old_str + connect_str + j[0]
                 new_search_strings.append(nstr)
                 print (nstr)
+    
+    # example for printing pali verses;
+    # s = Sutta_search(directory_list)
+    # s.print_pali_verse("mn130", "1.1")
+
+    
 
 def main_old():
     string_caches = []
@@ -283,11 +317,6 @@ def main_old():
         s.analyze_histogram()
         string_caches.append(s.search_string_cache)
         histograms.append(s.result_histo)
-
-
-    # for i in range(1):
-    #     r[0] += " " + s.result_histo[0][0] 
-    #     print("searching:", r)
 
     looplen = len(string_caches)
     for k in range(looplen):
