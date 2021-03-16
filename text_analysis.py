@@ -208,6 +208,8 @@ class Word_tree:
             num_trees = histo1_len
 
         for k in range(num_trees):
+            if (histo1[k][0] == ''):
+                continue
             r2 = self.r[0] + " " + histo1[k][0]
             r2 = r2.rstrip(')')
             print("continue searching for: ", r2)
