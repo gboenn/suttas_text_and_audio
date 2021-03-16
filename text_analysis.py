@@ -113,7 +113,9 @@ class Sutta_search:
                 res = re.split(self.search_string, line)
                 res = res[1].split()
                 #res = res[0].rstrip(',.:!?\'\"”')
-                self.search_matches.append(res[0])
+                if (res):
+                    res = res[0].rstrip(',.:!?\'\"”…')
+                    self.search_matches.append(res)
         self.search_lines = temp
         
     def print_pali_verse(self, sutta_number, verse_number):
@@ -190,7 +192,7 @@ class Word_tree:
         self.print_seach_lines()
         print("found in the suttas:")
         print(self.s.found_suttas)
-        print("founf in verses:")
+        print("found in verses:")
         print(self.s.found_verses)
 
     def print_seach_lines(self):
