@@ -188,9 +188,9 @@ class Word_tree:
         self.string_caches.append(self.s.search_string_cache)
         self.histograms.append(self.s.result_histo)
         self.print_seach_lines()
-        print("in the suttas:")
+        print("found in the suttas:")
         print(self.s.found_suttas)
-        print("in verses:")
+        print("founf in verses:")
         print(self.s.found_verses)
 
     def print_seach_lines(self):
@@ -221,9 +221,9 @@ class Word_tree:
             self.s.analyze_histogram()
             self.string_caches.append(self.s.search_string_cache)
             self.histograms.append(self.s.result_histo)
-            print("in the suttas:")
+            print("found in the suttas:")
             print(self.s.found_suttas)
-            print("in verses:")
+            print("found in verses:")
             print(self.s.found_verses)
             
 def main():
@@ -281,51 +281,6 @@ def main():
     # example for printing pali verses;
     # s = Sutta_search(directory_list)
     # s.print_pali_verse("mn130", "1.1")
-
-    
-
-def main_old():
-    string_caches = []
-    histograms = []
-    directory_list = "./sutta_files.txt"
-    # r = ["was staying near"]
-    # r = ["Venerable"]
-    # r = ["There are"]
-    # r = ["serenity of the"]
-    # r = ["right effort,"]
-    # r = ["Venerable Ānanda"]
-    # r = ["noble truth"]
-    r = ["suffering"]
-    s = Sutta_search(directory_list)
-    for k in r:
-        s.set_search_string(k)
-        s.new_search()
-    s.create_histogram()
-    s.analyze_histogram()
-    string_caches.append(s.search_string_cache)
-    histograms.append(s.result_histo)
-    
-    histo1 = s.result_histo
-    histo1_len = len(histo1)
-    num_trees = 10
-    if (num_trees > histo1_len):
-        num_trees = histo1_len
-
-    for k in range(num_trees):
-        # print(histo1[k][0])
-        r2 = r[0] + " " + histo1[k][0]
-        s.clear_arrays()
-        s.set_search_string(r2)
-        s.new_search()
-        s.create_histogram()
-        s.analyze_histogram()
-        string_caches.append(s.search_string_cache)
-        histograms.append(s.result_histo)
-
-    looplen = len(string_caches)
-    for k in range(looplen):
-        print(string_caches[k])
-        print(histograms[k])
 
 if __name__ == "__main__":
     main()
