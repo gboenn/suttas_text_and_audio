@@ -98,8 +98,9 @@ class Sutta_search:
                     # self.search_matches.append(bres_1)
                     
                     res = res[1].split()
-                    res = res[0].rstrip(',.:!?\'\"”…')
-                    self.search_matches.append(res)
+                    if (res):
+                        res = res[0].rstrip(',.:!?\'\"”…')
+                        self.search_matches.append(res)
 
     def search_cached_lines(self):
         temp = []
@@ -256,23 +257,24 @@ def main():
         print(w.string_caches[k])
         print(w.histograms[k])
 
-    print("composing search strings with completion...")
-    
-    new_search_strings = []
-    for k in range(looplen-1):
-        k+=1
-        num_next_words = len(w.histograms[k])
-        if (num_next_words > 0):
-            for j in w.histograms[k]:
-                old_str = w.string_caches[k][0]
-                connect_str = " "
-                if re.search("\s+$", old_str):
-                    old_str = old_str.rstrip() 
-                if re.search("\s.$", old_str):
-                    connect_str = ""
-                nstr = old_str + connect_str + j[0]
-                new_search_strings.append(nstr)
-                print (nstr)
+    if (False):
+        print("composing search strings with completion...")
+        
+        new_search_strings = []
+        for k in range(looplen-1):
+            k+=1
+            num_next_words = len(w.histograms[k])
+            if (num_next_words > 0):
+                for j in w.histograms[k]:
+                    old_str = w.string_caches[k][0]
+                    connect_str = " "
+                    if re.search("\s+$", old_str):
+                        old_str = old_str.rstrip() 
+                    if re.search("\s.$", old_str):
+                        connect_str = ""
+                    nstr = old_str + connect_str + j[0]
+                    new_search_strings.append(nstr)
+                    print (nstr)
     
     # example for printing pali verses;
     # s = Sutta_search(directory_list)
