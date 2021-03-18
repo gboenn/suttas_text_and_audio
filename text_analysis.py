@@ -3,6 +3,7 @@ import re
 import sys
 from pathlib import Path
 import json
+import glob
 
 # for general use:
 # change this to the full path to where bilara-data-published has been installed
@@ -69,6 +70,38 @@ class Sutta_search:
         sutta_number = sutta_main_number[0]
         verse_number = sutta_main_number[1]
         if (prints):
+            
+            nik = ["an", "sn", "kn"]
+            for bask in nik:
+                if (re.search(bask, sutta_number)):
+                    print(sutta_number)
+                    dir_list = sutta_number.split('.')
+                    dir_an = pali_path + '/' + bask + '/' + dir_list[0]
+                    if (Path(dir_an).is_dir()):
+                        print(dir_an)
+                        dir_file = dir_an + '/' + sutta_number + pali_file_label
+                        if (Path(dir_file).is_file() == False):
+                            print("DOES NOT EXIST")
+                            s_number = dir_list[1].split('-')[0]
+                            print(dir_list[1].split('-'), s_number)
+                            number = int(s_number)
+                            while(number > 0): 
+                                number -= 1
+                                new_number = str(number)
+                                dir_file = dir_an + '/' + dir_list[0] + '.' + new_number + '*'
+                                # print(dir_file)
+                                dir_matches = glob.glob(dir_file)
+                                # print(dir_matches)
+                                if (dir_matches == []):
+                                    continue
+                                else:
+                                    print(dir_matches[0])
+                                    self.print_pali_verse(sutta_number, verse_number, dir_matches[0])
+                                    break
+                    else:
+                        print("ERROR")
+            
+            
             self.print_pali_verse(sutta_number, verse_number)
             return
         self.found_suttas.append(sutta_number)
@@ -118,23 +151,36 @@ class Sutta_search:
                     self.search_matches.append(res)
         self.search_lines = temp
         
-    def print_pali_verse(self, sutta_number, verse_number):
-        f = open(self.cached_directories, "r");
-        for x in f:
-            sfile = x.rstrip("\n")
-            snum = '\/'+sutta_number+'_'
-            if (re.search(snum, sfile)):
-                if (re.search("dn", sutta_number) or re.search("mn", sutta_number)):
+    def print_pali_verse(self, sutta_number, verse_number, sutta_path="empty"):
+        if (sutta_path == "empty"):
+            f = open(self.cached_directories, "r");
+            for x in f:
+                sfile = x.rstrip("\n")
+                snum = '\/'+sutta_number+'_'
+                if (re.search(snum, sfile)):
+                    # if (re.search("dn", sutta_number) or re.search("mn", sutta_number)):
+                    #print(sutta_number, verse_number)
                     fpart = re.split(snum, sfile)[0]
+                    #print(fpart)
                     fpart2 = re.split("sutta", fpart)[1] + '/'
+                    #print(fpart2)
                     pali_file = pali_path + fpart2 + sutta_number + pali_file_label
+                    # print (pali_file)
                     with open(pali_file) as json_file:
                         loaded_json = json.load(json_file)
                         for x in loaded_json:
                             verse = sutta_number + ":" + verse_number
                             if (x == verse):
                                 print("%s: %s" % (x, loaded_json[x]))
-           
+        else:
+            with open(sutta_path) as json_file:
+                loaded_json = json.load(json_file)
+                for x in loaded_json:
+                    verse = sutta_number + ":" + verse_number
+                    if (x == verse):
+                        print("%s: %s" % (x, loaded_json[x]))
+
+                
     def create_histogram(self):
         self.search_histo = []
         self.search_matches.sort()
