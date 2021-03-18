@@ -35,6 +35,15 @@ def create_directory_cache():
             print(d)
         sys.stdout = original_stdout 
 
+def wordListToFreqDict(wordlist):
+    wordfreq = [wordlist.count(p) for p in wordlist]
+    return dict(list(zip(wordlist,wordfreq)))
+
+def sortFreqDict(freqdict):
+    aux = [(freqdict[key], key) for key in freqdict]
+    aux.sort()
+    aux.reverse()
+    return aux
 
 class Sutta_search:
     nik = ["an", "sn", "dhp"]
@@ -256,6 +265,17 @@ class Word_tree:
         print(self.s.found_suttas)
         print("found in verses:")
         print(self.s.found_verses)
+        self.analyze_occurences()
+
+    def analyze_occurences (self):
+        d = wordListToFreqDict(self.s.found_suttas)
+        # print (d)
+        sfd = sortFreqDict(d)
+        if (len(sfd) > 2):
+            print ("The three most frequent occurences are in:")
+            print (sfd[0], sfd[1], sfd[3])
+        else:
+            print (sfd)
 
     def print_seach_lines(self):
         print("Text references found...")
@@ -289,6 +309,7 @@ class Word_tree:
             print(self.s.found_suttas)
             print("found in verses:")
             print(self.s.found_verses)
+            self.analyze_occurences()
             
 def simple_search ():
     if (len(sys.argv) < 2):
