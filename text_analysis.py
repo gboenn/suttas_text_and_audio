@@ -9,6 +9,7 @@ import glob
 # change this to the full path to where bilara-data-published has been installed
 bilara_path = "./bilara-data-published/translation/en/sujato/sutta";
 pali_path = "./bilara-data-published/root/pli/ms/sutta"
+
 pali_file_label = "_root-pli-ms.json"
 sujato_file_label = "_translation-en-sujato.json"
 
@@ -36,7 +37,7 @@ def create_directory_cache():
 
 
 class Sutta_search:
-    nik = ["an", "sn", "bv", "dhp"]
+    nik = ["an", "sn", "dhp"]
 
     def __init__(self, cached_directories):
         self.search_string = []
@@ -72,7 +73,7 @@ class Sutta_search:
         sutta_number = sutta_main_number[0]
         verse_number = sutta_main_number[1]
         if (prints):
-            for bask in self.nik:
+            for bask in self.nik: # resolving Pali for an, sn, and dhp 
                 if (re.search(bask, sutta_number)):
 #                    print(sutta_number)
                     dir_list = sutta_number.split('.')
@@ -87,7 +88,6 @@ class Sutta_search:
                         dir_file = dir_an + '/' + sutta_number + pali_file_label
                         #print(dir_file)
                         if (Path(dir_file).is_file() == False):
-                            #print("DOES NOT EXIST")
                             s_number = '0'
                             s_nik = dir_list[0]
                             if (len(dir_list) > 1):
@@ -175,7 +175,6 @@ class Sutta_search:
                 sfile = x.rstrip("\n")
                 snum = '\/'+sutta_number+'_'
                 if (re.search(snum, sfile)):
-                    # if (re.search("dn", sutta_number) or re.search("mn", sutta_number)):
                     #print(sutta_number, verse_number)
                     fpart = re.split(snum, sfile)[0]
                     #print(fpart)
@@ -291,12 +290,31 @@ class Word_tree:
             print("found in verses:")
             print(self.s.found_verses)
             
-def main():
+def simple_search ():
+    if (len(sys.argv) < 2):
+        print("Usage: python[3.7] text_analysis.py <search string>")
+        return
     search_words = sys.argv[1]
-    create_directory_cache()
-    directory_list = "./sutta_files.txt"
     r =[]
     r.append(search_words)
+    create_directory_cache()
+    directory_list = "./sutta_files.txt"
+    w = Word_tree(directory_list, r)
+    w.start_search()    
+    looplen = len(w.string_caches)
+    print("words and their number of occurences in context...")
+    for k in range(looplen):
+        print(w.string_caches[k])
+        print(w.histograms[k])
+
+def main():
+    
+    simple_search ()
+    return    
+
+    # r.append("noble truth")
+    # r.append("Venerable")
+    # r.append("Mahāpajāpatī")
     # r = ["noble truth"]
     # r = ["Venerable"]
     # r = ["Mahāpajāpatī"]
@@ -315,14 +333,6 @@ def main():
     # r = ["was staying near"]
     # r = ["there are these"]
     # r = ["seven factors"]
-    w = Word_tree(directory_list, r)
-    w.start_search()
-    w.continue_search()
-    looplen = len(w.string_caches)
-    print("words and their number of occurences in context...")
-    for k in range(looplen):
-        print(w.string_caches[k])
-        print(w.histograms[k])
 
     if (False):
         print("composing search strings with completion...")
