@@ -36,6 +36,8 @@ def create_directory_cache():
 
 
 class Sutta_search:
+    nik = ["an", "sn", "bv", "dhp"]
+
     def __init__(self, cached_directories):
         self.search_string = []
         self.search_string_cache = []
@@ -70,38 +72,53 @@ class Sutta_search:
         sutta_number = sutta_main_number[0]
         verse_number = sutta_main_number[1]
         if (prints):
-            
-            nik = ["an", "sn", "kn"]
-            for bask in nik:
+            for bask in self.nik:
                 if (re.search(bask, sutta_number)):
-                    print(sutta_number)
+#                    print(sutta_number)
                     dir_list = sutta_number.split('.')
-                    dir_an = pali_path + '/' + bask + '/' + dir_list[0]
+                    #print(dir_list)
+                    basket = bask
+                    dir_an = pali_path + '/' + basket + '/' + dir_list[0]
+                    if (bask == "dhp"):
+                        basket = "kn"
+                        dir_an = pali_path + '/' + basket
+                    #print(dir_an)
                     if (Path(dir_an).is_dir()):
-                        print(dir_an)
                         dir_file = dir_an + '/' + sutta_number + pali_file_label
+                        #print(dir_file)
                         if (Path(dir_file).is_file() == False):
-                            print("DOES NOT EXIST")
-                            s_number = dir_list[1].split('-')[0]
-                            print(dir_list[1].split('-'), s_number)
+                            #print("DOES NOT EXIST")
+                            s_number = '0'
+                            s_nik = dir_list[0]
+                            if (len(dir_list) > 1):
+                                s_number = dir_list[1].split('-')[0]
+                                #print(dir_list[1].split('-'), s_number)
+                            else:
+                                r = re.compile("([a-zA-Z]+)([0-9]+)")
+                                m = r.match(sutta_number)
+                                # print(m.group(2))
+                                s_number = m.group(2)
+                                s_nik = m.group(1)
+                                # print(s_number)
                             number = int(s_number)
                             while(number > 0): 
                                 number -= 1
                                 new_number = str(number)
-                                dir_file = dir_an + '/' + dir_list[0] + '.' + new_number + '*'
-                                # print(dir_file)
+                                if (len(dir_list) > 1):
+                                    dir_file = dir_an + '/' + s_nik + '.' + new_number + '*'
+                                else:
+                                    dir_file = dir_an + '/' + s_nik + '/' + s_nik + new_number + '-*'
+                                    #print(dir_file)
                                 dir_matches = glob.glob(dir_file)
                                 # print(dir_matches)
                                 if (dir_matches == []):
                                     continue
                                 else:
-                                    print(dir_matches[0])
+                                    #print(dir_matches[0])
                                     self.print_pali_verse(sutta_number, verse_number, dir_matches[0])
                                     break
                     else:
-                        print("ERROR")
-            
-            
+                        print("Error finding Pali text")
             self.print_pali_verse(sutta_number, verse_number)
             return
         self.found_suttas.append(sutta_number)
