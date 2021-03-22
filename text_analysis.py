@@ -6,7 +6,7 @@ import json
 import glob
 
 # for general use:
-# change this to the full path to where bilara-data-published has been installed
+# change bilara_path and pali_path to the full path to where bilara-data-published has been installed
 bilara_path = "./bilara-data-published/translation/en/sujato/sutta";
 pali_path = "./bilara-data-published/root/pli/ms/sutta"
 
@@ -35,9 +35,9 @@ def create_directory_cache():
             print(d)
         sys.stdout = original_stdout 
 
-def wordListToFreqDict(wordlist):
-    wordfreq = [wordlist.count(p) for p in wordlist]
-    return dict(list(zip(wordlist,wordfreq)))
+def word_frequencies(wordlist): 
+    word_freq = [wordlist.count(p) for p in wordlist]
+    return dict(list(zip(wordlist, word_freq)))
 
 def sortFreqDict(freqdict):
     aux = [(freqdict[key], key) for key in freqdict]
@@ -65,7 +65,6 @@ class Sutta_search:
         self.search_string_cache.append(new_search_string)
 
     def clear_arrays(self):
-        #print(self.search_lines)
         self.search_string_cache = []
         self.search_matches = []
         # self.search_lines = []
@@ -84,31 +83,24 @@ class Sutta_search:
         if (prints):
             for bask in self.nik: # resolving Pali for an, sn, and dhp 
                 if (re.search(bask, sutta_number)):
-#                    print(sutta_number)
                     dir_list = sutta_number.split('.')
-                    #print(dir_list)
                     basket = bask
                     dir_an = pali_path + '/' + basket + '/' + dir_list[0]
                     if (bask == "dhp"):
                         basket = "kn"
                         dir_an = pali_path + '/' + basket
-                    #print(dir_an)
                     if (Path(dir_an).is_dir()):
                         dir_file = dir_an + '/' + sutta_number + pali_file_label
-                        #print(dir_file)
                         if (Path(dir_file).is_file() == False):
                             s_number = '0'
                             s_nik = dir_list[0]
                             if (len(dir_list) > 1):
                                 s_number = dir_list[1].split('-')[0]
-                                #print(dir_list[1].split('-'), s_number)
                             else:
                                 r = re.compile("([a-zA-Z]+)([0-9]+)")
                                 m = r.match(sutta_number)
-                                # print(m.group(2))
                                 s_number = m.group(2)
                                 s_nik = m.group(1)
-                                # print(s_number)
                             number = int(s_number)
                             while(number > 0): 
                                 number -= 1
@@ -117,13 +109,11 @@ class Sutta_search:
                                     dir_file = dir_an + '/' + s_nik + '.' + new_number + '*'
                                 else:
                                     dir_file = dir_an + '/' + s_nik + '/' + s_nik + new_number + '-*'
-                                    #print(dir_file)
+
                                 dir_matches = glob.glob(dir_file)
-                                # print(dir_matches)
                                 if (dir_matches == []):
                                     continue
                                 else:
-                                    #print(dir_matches[0])
                                     self.print_pali_verse(sutta_number, verse_number, dir_matches[0])
                                     break
                     else:
@@ -145,11 +135,6 @@ class Sutta_search:
                     self.resolve_sutta_number (line)
                     res = re.split(self.search_string, line)
                     
-                    # res_1 = res[1].split()
-                    # keep punctuation?
-                    # res = re.findall(r"[\w']+|[.,!?;]", res[0])[0]
-                    # res_2 = res_1[0].rstrip(',.:!?\'\"”')
-                    # print(res)
                     # possible backwards search - needs separate array
                     # bres = res[0].split()
                     # bres_1 = bres[-1]
@@ -171,7 +156,6 @@ class Sutta_search:
                 temp.append(line)
                 res = re.split(self.search_string, line)
                 res = res[1].split()
-                #res = res[0].rstrip(',.:!?\'\"”')
                 if (res):
                     res = res[0].rstrip(',.:!?\'\"”…')
                     self.search_matches.append(res)
@@ -184,13 +168,9 @@ class Sutta_search:
                 sfile = x.rstrip("\n")
                 snum = '\/'+sutta_number+'_'
                 if (re.search(snum, sfile)):
-                    #print(sutta_number, verse_number)
                     fpart = re.split(snum, sfile)[0]
-                    #print(fpart)
                     fpart2 = re.split("sutta", fpart)[1] + '/'
-                    #print(fpart2)
                     pali_file = pali_path + fpart2 + sutta_number + pali_file_label
-                    # print (pali_file)
                     with open(pali_file) as json_file:
                         loaded_json = json.load(json_file)
                         for x in loaded_json:
@@ -225,11 +205,7 @@ class Sutta_search:
         for k in self.search_histo:
             sorted_histo.append ([k[0], k[1]])
             self.total_matches += k[1]
-
-        # print(self.total_matches, "matches for ", self.search_string_cache)
         self.result_histo = sorted(sorted_histo, key=lambda x: x[1], reverse=True)
-        # for k in self.result_histo: 
-        #     print (k[0], "," , k[1], ",")
 
     def get_next_word(self, rank):
         return self.result_histo[rank]
@@ -261,21 +237,24 @@ class Word_tree:
         self.string_caches.append(self.s.search_string_cache)
         self.histograms.append(self.s.result_histo)
         self.print_seach_lines()
-        print("found in the suttas:")
-        print(self.s.found_suttas)
-        print("found in verses:")
-        print(self.s.found_verses)
+        print("found this many times in the suttas:")
+        # print(self.s.found_suttas)
+        # print("found in verses:")
+        # print(self.s.found_verses)
         self.analyze_occurences()
+        return self.s.found_suttas, self.s.found_verses
 
     def analyze_occurences (self):
-        d = wordListToFreqDict(self.s.found_suttas)
-        # print (d)
+        d = word_frequencies(self.s.found_suttas)
         sfd = sortFreqDict(d)
-        if (len(sfd) > 2):
-            print ("The three most frequent occurences are in:")
-            print (sfd[0], sfd[1], sfd[3])
+        len_sfd = len(sfd)
+        if (len_sfd > 2 and len_sfd < 11):
+            print ("The most frequent occurences are in:")
+
+            print (sfd[0], sfd[1], sfd[2])
         else:
             print (sfd)
+        return sfd
 
     def print_seach_lines(self):
         print("Text references found...")
@@ -305,11 +284,12 @@ class Word_tree:
             self.s.analyze_histogram()
             self.string_caches.append(self.s.search_string_cache)
             self.histograms.append(self.s.result_histo)
-            print("found in the suttas:")
-            print(self.s.found_suttas)
-            print("found in verses:")
-            print(self.s.found_verses)
+            print("found this many times in the suttas:")
+            # print(self.s.found_suttas)
+            # print("found in verses:")
+            # print(self.s.found_verses)
             self.analyze_occurences()
+            return self.s.found_suttas, self.s.found_verses
             
 def simple_search ():
     if (len(sys.argv) < 2):
