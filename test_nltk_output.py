@@ -77,6 +77,7 @@ class Word_tree_nltk(Word_tree):
             print("")
 
     
+word_completion_list = []
 def completion_search (directory_list, r, freq_thresh):
     w = Word_tree_nltk(directory_list, r)
     # w.start_new_search(r)
@@ -108,14 +109,15 @@ def completion_search (directory_list, r, freq_thresh):
     counter = 0
     for k in new_search_strings:
         counter += 1
-        if (counter == 5):
+        if (counter == 99):
             break
         tagged = nltk.pos_tag(k)
         x = [" ".join(k)]
         print(x, tagged)
+        word_completion_list.append(x)
         # string_completions.append(x)  
-        rss = completion_search(directory_list, x, freq_thresh)
-        print(rss)
+        completion_search(directory_list, x, freq_thresh)
+        # print(rss)
 
 # tag parts of speech using nltk
 def phrase_build_search ():
@@ -129,9 +131,12 @@ def phrase_build_search ():
     create_directory_cache()
     directory_list = "./sutta_files.txt"
 
-    new_search_strings = completion_search(directory_list, r, freq_thresh)
+    completion_search(directory_list, r, freq_thresh)
 
-    print (new_search_strings)
+    # print (new_search_strings)
+
+    print("ALL KEY PHRASES:")
+    print(word_completion_list)
     # string_completions = []
     # counter = 0
     # for k in new_search_strings:
