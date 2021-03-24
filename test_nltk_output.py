@@ -24,9 +24,11 @@ class Sutta_search_nltk(Sutta_search):
                     # print(bres_1)
                     # self.search_matches.append(bres_1)
                     
-                    res = res[1].split()
+                    # res = res[1].split()
+                    res = nltk.word_tokenize(res[1])
+                    #print (res)
                     if (res):
-                        res = res[0].rstrip(',.:!?\'\"”…')
+                        res = res[0] #.rstrip(',.:!?\'\"”…')
                         self.search_matches.append(res)
 
 class Word_tree_nltk(Word_tree):
@@ -49,7 +51,7 @@ class Word_tree_nltk(Word_tree):
     def start_search(self):
         for k in self.r:
             self.s_n.set_search_string(k)
-            self.s_n.new_search()
+            self.s_n.new_search_nltk()
         self.s_n.create_histogram()
         self.s_n.analyze_histogram()
         self.string_caches.append(self.s_n.search_string_cache)
@@ -107,12 +109,17 @@ def phrase_build_search ():
                 new_branch = [] 
                 old_str = w.string_caches[k][0]
                 if (j[0] != ''):
-                    new_branch.append(old_str)
+                    old_str_split = old_str.split()
+                    # print(old_str_split)
+                    for n in old_str_split:
+                        new_branch.append(n)
                     new_branch.append(j[0])
                     new_search_strings.append(new_branch)
 
     print (new_search_strings)
     for k in new_search_strings:
+        # x_string = " ".join(k)
+        # print (x_string)
         tagged = nltk.pos_tag(k)
         print(k, tagged)
 
