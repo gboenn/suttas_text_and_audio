@@ -39,7 +39,7 @@ def word_frequencies(wordlist):
     word_freq = [wordlist.count(p) for p in wordlist]
     return dict(list(zip(wordlist, word_freq)))
 
-def sortFreqDict(freqdict):
+def sort_freq_dict(freqdict):
     aux = [(freqdict[key], key) for key in freqdict]
     aux.sort()
     aux.reverse()
@@ -246,11 +246,10 @@ class Word_tree:
 
     def analyze_occurences (self):
         d = word_frequencies(self.s.found_suttas)
-        sfd = sortFreqDict(d)
+        sfd = sort_freq_dict(d)
         len_sfd = len(sfd)
         if (len_sfd > 2 and len_sfd < 11):
             print ("The most frequent occurences are in:")
-
             print (sfd[0], sfd[1], sfd[2])
         else:
             print (sfd)
@@ -308,51 +307,11 @@ def simple_search ():
         print(w.string_caches[k])
         print(w.histograms[k])
 
+
 def main():
-    
+    # search using phrase, words, verse, or sutta number    
     simple_search ()
-    return    
-
-    # r.append("noble truth")
-    # r.append("Venerable")
-    # r.append("Mahāpajāpatī")
-    # r = ["noble truth"]
-    # r = ["Venerable"]
-    # r = ["Mahāpajāpatī"]
-    # r = ["nun"]
-    # r = ["suffering"]
-    # r = ["impermanence"]
-    # r = ["love"]
-    # r = ["Buddha"]
-    # r = ["Bodhi"]
-    # r = ["rebirth"]
-    # r = ["three "]
-    # r = ["happiness"]
-    # r = ["eye contact"]
-    # r = ["consciousness"]
-    # r = ["name and form"]
-    # r = ["was staying near"]
-    # r = ["there are these"]
-    # r = ["seven factors"]
-
-    if (False):
-        print("composing search strings with completion...")
-        
-        new_search_strings = []
-        for k in range(looplen-1):
-            k+=1
-            num_next_words = len(w.histograms[k])
-            if (num_next_words > 0):
-                for j in w.histograms[k]:
-                    old_str = w.string_caches[k][0]
-                    connect_str = " "
-                    if re.search("\s+$", old_str):
-                        old_str = old_str.rstrip() 
-                    if re.search("\s.$", old_str):
-                        connect_str = ""
-                    nstr = old_str + connect_str + j[0]
-                    new_search_strings.append(nstr)
-                    print (nstr)
+    return
     
     # example for printing pali verses;
     # s = Sutta_search(directory_list)
