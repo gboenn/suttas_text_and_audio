@@ -17,14 +17,6 @@ class Sutta_search_nltk(Sutta_search):
                     self.search_lines.append(line)
                     self.resolve_sutta_number (line)
                     res = re.split(self.search_string, line)
-                    
-                    # possible backwards search - needs separate array
-                    # bres = res[0].split()
-                    # bres_1 = bres[-1]
-                    # print(bres_1)
-                    # self.search_matches.append(bres_1)
-                    
-                    # res = res[1].split()
                     res = nltk.word_tokenize(res[1])
                     #print (res)
                     if (res):
@@ -56,7 +48,9 @@ class Word_tree_nltk(Word_tree):
         self.s_n.analyze_histogram()
         self.string_caches.append(self.s_n.search_string_cache)
         self.histograms.append(self.s_n.result_histo)
-        self.print_seach_lines()
+        
+        #self.print_seach_lines()
+        
         print("found this many times in the suttas:")
         # print(self.s.found_suttas)
         # print("found in verses:")
@@ -82,17 +76,10 @@ class Word_tree_nltk(Word_tree):
             self.s_n.resolve_sutta_number (k, True)
             print("")
 
-# tag parts of speech using nltk
-def phrase_build_search ():
-    if (len(sys.argv) < 2):
-        print("Usage: python[3.7] text_analysis.py <search string>")
-        return
-    search_words = sys.argv[1]
-    r =[]
-    r.append(search_words)
-    create_directory_cache()
-    directory_list = "./sutta_files.txt"
+    
+def completion_search (directory_list, r, freq_thresh):
     w = Word_tree_nltk(directory_list, r)
+    # w.start_new_search(r)
     w.start_search()    
     looplen = len(w.string_caches)
     print("words and their number of occurences in context...")
@@ -108,20 +95,55 @@ def phrase_build_search ():
             for j in w.histograms[k]:
                 new_branch = [] 
                 old_str = w.string_caches[k][0]
-                if (j[0] != ''):
-                    old_str_split = old_str.split()
-                    # print(old_str_split)
-                    for n in old_str_split:
-                        new_branch.append(n)
-                    new_branch.append(j[0])
-                    new_search_strings.append(new_branch)
+                new_word = j[0].rstrip(',.:!?\'\"”…')
+                if (new_word != ''):
+                    if (j[1] > freq_thresh):
+                        old_str_split = old_str.split()
+                        # print(old_str_split)
+                        for n in old_str_split:
+                            new_branch.append(n)
+                        new_branch.append(new_word)
+                        new_search_strings.append(new_branch)
+    # return new_search_strings
+    counter = 0
+    for k in new_search_strings:
+        counter += 1
+        if (counter == 5):
+            break
+        tagged = nltk.pos_tag(k)
+        x = [" ".join(k)]
+        print(x, tagged)
+        # string_completions.append(x)  
+        rss = completion_search(directory_list, x, freq_thresh)
+        print(rss)
+
+# tag parts of speech using nltk
+def phrase_build_search ():
+    if (len(sys.argv) < 3):
+        print("Usage: python[3.7] text_analysis.py <search string> <frequency threshold>")
+        return
+    search_words = sys.argv[1]
+    freq_thresh = int(sys.argv[2])
+    r =[]
+    r.append(search_words)
+    create_directory_cache()
+    directory_list = "./sutta_files.txt"
+
+    new_search_strings = completion_search(directory_list, r, freq_thresh)
 
     print (new_search_strings)
-    for k in new_search_strings:
-        # x_string = " ".join(k)
-        # print (x_string)
-        tagged = nltk.pos_tag(k)
-        print(k, tagged)
+    # string_completions = []
+    # counter = 0
+    # for k in new_search_strings:
+    #     counter += 1
+    #     if (counter == 5):
+    #         break
+    #     tagged = nltk.pos_tag(k)
+    #     x = [" ".join(k)]
+    #     print(x, tagged)
+    #     # string_completions.append(x)  
+    #     rss = completion_search(directory_list, x, freq_thresh)
+    #     print(rss)
 
 def main():
     # experiment with tagging pos
