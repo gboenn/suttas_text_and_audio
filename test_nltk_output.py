@@ -1,7 +1,6 @@
 from text_analysis import *
 import nltk
 
-
 class Sutta_search_nltk(Sutta_search):
     def __init__(self, cached_directories):
         super().__init__(cached_directories)
@@ -17,8 +16,7 @@ class Sutta_search_nltk(Sutta_search):
                     self.search_lines.append(line)
                     self.resolve_sutta_number (line)
                     res = re.split(self.search_string, line)
-                    res = nltk.word_tokenize(res[1])
-                    #print (res)
+                    res = nltk.word_tokenize(res[1]) # do we need nltk? only for tokenizing?
                     if (res):
                         res = res[0].rstrip(',.:!?\'\"”…-')
                         self.search_matches.append(res)
@@ -48,25 +46,15 @@ class Word_tree_nltk(Word_tree):
         self.s_n.analyze_histogram()
         self.string_caches.append(self.s_n.search_string_cache)
         self.histograms.append(self.s_n.result_histo)
-        
-        #self.print_seach_lines()
-        
-        print("found this many times in the suttas:")
-        # print(self.s.found_suttas)
+        # print("found this many times in the suttas:")
+        # print(self.s_n.found_suttas)
         # print("found in verses:")
-        # print(self.s.found_verses)
-        self.analyze_occurences()
-        return self.s_n.found_suttas, self.s_n.found_verses
+        # print(self.s_n.found_verses)
+        return (self.analyze_occurences())
 
     def analyze_occurences (self):
         d = word_frequencies(self.s_n.found_suttas)
         sfd = sort_freq_dict(d)
-        len_sfd = len(sfd)
-        if (len_sfd > 2 and len_sfd < 11):
-            print ("The most frequent occurences are in:")
-            print (sfd[0], sfd[1], sfd[2])
-        else:
-            print (sfd)
         return sfd
 
     def print_seach_lines(self):
@@ -76,85 +64,66 @@ class Word_tree_nltk(Word_tree):
             self.s_n.resolve_sutta_number (k, True)
             print("")
 
-    
 word_completion_list = []
-def completion_search (directory_list, r, freq_thresh, doc_thresh):
+def completion_search (directory_list, r, doc_thresh):
     w = Word_tree_nltk(directory_list, r)
-    # w.start_new_search(r)
-    w.start_search()    
+    s_analysis = w.start_search()   
     looplen = len(w.string_caches)
-    print("words and their number of occurences in context...")
-    for k in range(looplen):
-        print(w.string_caches[k])
-        print(w.histograms[k])
+    # the sutta references and number of occurence per sutta 
+    if (len(s_analysis) > 0):
+        # print("found this phrase...")
+        for k in range(looplen):
+            if (len(s_analysis) <= doc_thresh):
+                print(w.string_caches[k])
+                print("number of suttas:", (len(s_analysis)))
+                print(s_analysis)
+                word_completion_list.append(w.string_caches[k])
+                word_completion_list.append(s_analysis)
 
-    print("composing search strings with completion...")
+    # print("composing search strings with completion...")
     new_search_strings = []
     for k in range(looplen):
         num_next_words = len(w.histograms[k])
         if (num_next_words > 0):
             for j in w.histograms[k]:
-                if (j[1] > doc_thresh):
-                    continue 
                 new_branch = [] 
                 old_str = w.string_caches[k][0]
                 new_word = j[0].rstrip(',.:!?\'\"”…')
                 if (new_word != ''):
-                    if (j[1] > freq_thresh):
-                        old_str_split = old_str.split()
-                        # print(old_str_split)
-                        for n in old_str_split:
-                            new_branch.append(n)
-                        new_branch.append(new_word)
-                        new_search_strings.append(new_branch)
-    # return new_search_strings
-    counter = 0
-    for k in new_search_strings:
-        counter += 1
-        if (counter == 99):
-            break
-        tagged = nltk.pos_tag(k)
-        x = [" ".join(k)]
-        print(x, tagged)
-        word_completion_list.append(x)
-        # string_completions.append(x)  
-        completion_search(directory_list, x, freq_thresh, doc_thresh)
-        # print(rss)
+                    old_str_split = old_str.split()
+                    for n in old_str_split:
+                        new_branch.append(n)
+                    new_branch.append(new_word)
+                    new_search_strings.append(new_branch)
 
-# tag parts of speech using nltk
+    for k in new_search_strings:
+        x = [" ".join(k)]
+        completion_search(directory_list, x, doc_thresh)
+    
+
 def phrase_build_search ():
-    if (len(sys.argv) < 4):
-        print("Usage: python[3.7] text_analysis.py <search string> <frequency threshold> <document threshold>")
+    usage_str = "Usage: python[3.7] text_analysis.py <search string> <document threshold>"
+    if (len(sys.argv) < 3):
+        print(usage_str)
         return
     search_words = sys.argv[1]
-    freq_thresh = int(sys.argv[2])
+    doc_thresh = int(sys.argv[2]) #consider only matches < doc_thresh 
+
+    if (doc_thresh < 1):
+        print("<document threshold> must be at least 1")
+        print(usage_str)
+        return
+
     r =[]
     r.append(search_words)
     create_directory_cache()
-    directory_list = "./sutta_files.txt"
-    doc_thresh = int(sys.argv[3]) #restrict matches to 25 suttas at most
-    completion_search(directory_list, r, freq_thresh, doc_thresh)
+    directory_list = "./sutta_files.txt"    
+    completion_search(directory_list, r, doc_thresh)
 
-    # print (new_search_strings)
+    #print(word_completion_list)
 
-    print("ALL KEY PHRASES:")
-    print(word_completion_list)
-    # string_completions = []
-    # counter = 0
-    # for k in new_search_strings:
-    #     counter += 1
-    #     if (counter == 5):
-    #         break
-    #     tagged = nltk.pos_tag(k)
-    #     x = [" ".join(k)]
-    #     print(x, tagged)
-    #     # string_completions.append(x)  
-    #     rss = completion_search(directory_list, x, freq_thresh)
-    #     print(rss)
 
 def main():
-    # experiment with tagging pos
-    # requires import ntlk
     phrase_build_search ()
     
 
