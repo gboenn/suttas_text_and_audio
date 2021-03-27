@@ -20,7 +20,7 @@ class Sutta_search_nltk(Sutta_search):
                     res = nltk.word_tokenize(res[1])
                     #print (res)
                     if (res):
-                        res = res[0] #.rstrip(',.:!?\'\"”…')
+                        res = res[0].rstrip(',.:!?\'\"”…-')
                         self.search_matches.append(res)
 
 class Word_tree_nltk(Word_tree):
@@ -78,7 +78,7 @@ class Word_tree_nltk(Word_tree):
 
     
 word_completion_list = []
-def completion_search (directory_list, r, freq_thresh):
+def completion_search (directory_list, r, freq_thresh, doc_thresh):
     w = Word_tree_nltk(directory_list, r)
     # w.start_new_search(r)
     w.start_search()    
@@ -94,6 +94,8 @@ def completion_search (directory_list, r, freq_thresh):
         num_next_words = len(w.histograms[k])
         if (num_next_words > 0):
             for j in w.histograms[k]:
+                if (j[1] > doc_thresh):
+                    continue 
                 new_branch = [] 
                 old_str = w.string_caches[k][0]
                 new_word = j[0].rstrip(',.:!?\'\"”…')
@@ -116,13 +118,13 @@ def completion_search (directory_list, r, freq_thresh):
         print(x, tagged)
         word_completion_list.append(x)
         # string_completions.append(x)  
-        completion_search(directory_list, x, freq_thresh)
+        completion_search(directory_list, x, freq_thresh, doc_thresh)
         # print(rss)
 
 # tag parts of speech using nltk
 def phrase_build_search ():
-    if (len(sys.argv) < 3):
-        print("Usage: python[3.7] text_analysis.py <search string> <frequency threshold>")
+    if (len(sys.argv) < 4):
+        print("Usage: python[3.7] text_analysis.py <search string> <frequency threshold> <document threshold>")
         return
     search_words = sys.argv[1]
     freq_thresh = int(sys.argv[2])
@@ -130,8 +132,8 @@ def phrase_build_search ():
     r.append(search_words)
     create_directory_cache()
     directory_list = "./sutta_files.txt"
-
-    completion_search(directory_list, r, freq_thresh)
+    doc_thresh = int(sys.argv[3]) #restrict matches to 25 suttas at most
+    completion_search(directory_list, r, freq_thresh, doc_thresh)
 
     # print (new_search_strings)
 
