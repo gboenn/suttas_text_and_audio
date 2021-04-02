@@ -109,6 +109,7 @@ def sutta_tfidf ():
     idf = sst.idf(len(s_analysis))
     print("inverse document frequency (idf) of", search_words, "=", idf)
 
+    search_words = search_words.lower()
     # print(s_analysis[0][1])
     sunum = s_analysis[0][1] + ":"
     sulines = load_a_sutta(sunum, directory_list)
@@ -133,11 +134,71 @@ def sutta_tfidf ():
         
         sst.print_key_sutta_dict('buddha')
 
+
+def words_to_tfidf (directory_list, search_words):
+    # if (len(sys.argv) < 2):
+    #     print("Usage: python[3.7] tfidf.py <search string>")
+    #     return
+    # search_words = sys.argv[1]
+    r =[]
+    r.append(search_words)
+    create_directory_cache()
+    # directory_list = "./sutta_files.txt"
+    sst = Sutta_search_tfidf(directory_list)
+    w = Word_tree_nltk(directory_list, r)
+    s_analysis = w.start_search()    
+    print(s_analysis)
+    if (len(s_analysis) < 1):
+        print(search_words, "not found")
+        return
+    looplen = len(w.string_caches)
+    if (len(s_analysis) > 0):
+        for k in range(looplen):
+            if (len(s_analysis)):
+                # print(w.string_caches[k])
+                print("document matches:", (len(s_analysis)))
+
+    idf = sst.idf(len(s_analysis))
+    print("inverse document frequency (idf) of", search_words, "=", idf)
+
+    search_words = search_words.lower()
+    # print(s_analysis)
+ 
+    sunum = s_analysis[0][1] + ":"
+    sulines = load_a_sutta(sunum, directory_list)
+    # print(sulines)
+    sutta_tokens_dict = build_a_dict(sulines)
+    sutta_word_count = count_words(sutta_tokens_dict)
+    sutta_term_count = sutta_tokens_dict.get(search_words)
+    if (sutta_term_count != None):
+        term_freq = sutta_term_count / sutta_word_count
+        print("sutta", s_analysis[0][1], "has", sutta_word_count, "words")
+        # print(json.dumps(sutta_tokens_dict, sort_keys=True, indent=4))
+        print ("term matches of", search_words, "in", s_analysis[0][1], "=", sutta_term_count)
+        print ("term frequency (tf) of", search_words, "in", s_analysis[0][1], "=", term_freq)
+        tf_idf =  term_freq * idf
+        print ("tf-idf of", search_words, "in", s_analysis[0][1], "=", tf_idf)
     
+
+def file_of_words_to_idf ():
+    if (len(sys.argv) < 2):
+        print("Usage: python[3.7] tfidf.py <file>")
+        return
+    file_with_words = sys.argv[1]
+    directory_list = "./sutta_files.txt"
+    f = open(file_with_words, "r")
+    for x in f:
+        x = x.rstrip('\n')
+        print(x)
+        words_to_tfidf (directory_list, x)
+
 
 
 def main():
+    
     sutta_tfidf ()
+
+    # file_of_words_to_idf ()
     
 
 if __name__ == "__main__":
