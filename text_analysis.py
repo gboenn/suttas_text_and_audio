@@ -248,11 +248,13 @@ class Word_tree:
         d = word_frequencies(self.s.found_suttas)
         sfd = sort_freq_dict(d)
         len_sfd = len(sfd)
-        if (len_sfd > 2 and len_sfd < 11):
-            print ("The most frequent occurences are in:")
-            print (sfd[0], sfd[1], sfd[2])
-        else:
-            print (sfd)
+        print ("The most frequent occurences are in:")
+        print (sfd)
+        # if (len_sfd > 2 and len_sfd < 11):
+        #     print ("The most frequent occurences are in:")
+        #     print (sfd[0], sfd[1], sfd[2])
+        # else:
+        #     print (sfd)
         return sfd
 
     def print_seach_lines(self):
