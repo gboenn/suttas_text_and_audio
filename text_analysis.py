@@ -129,6 +129,7 @@ class Sutta_search:
             sfile = x.rstrip("\n")            
             s = open(sfile, "r")
             for line in s:
+                line = line.lower()
                 if re.search(self.search_string, line):
                     line.rstrip("\n")
                     self.search_lines.append(line)
