@@ -60,7 +60,7 @@ function parse(sutta) {
 
   counter = 0;
   pali_counter = 0;
-  //console.log(verse);
+  console.log(verse);
   //console.log(pali);
 }
 
@@ -281,8 +281,8 @@ function speak_now () {
   sentence = verse[counter];
   // need to split up verses that are long lists > 299 charachters
   console.log("length: " + sentence.length);
-  if (sentence.length > 299) {
-    let utterance = sentence.split(',');
+  if (sentence.length > 200) {
+    let utterance = sentence.split(', ');
     verse.splice(counter, 1, utterance[0]); 
     for (let i = 1; i < utterance.length; i++){
       verse.splice(counter+i, 0, utterance[i]); 
@@ -308,6 +308,7 @@ function drawText () {
   if (counter === 1){
     textlength *= 2;
   }
+  
   // console.log(textlength)
   if (textlength > width) {
     drawText_extra();
@@ -315,9 +316,9 @@ function drawText () {
     textFont("Helvetica", fontsize);
     noStroke();
     fill(255);
-    rect(0, height - (height*0.618), textlength*1.1, fontsize*2);
+    rect(0, height - (height*0.618), textlength*1.2, fontsize*2);
     fill(0);
-    text(sentence, 10, height - (height*0.618) + fontsize + 6);
+    text(sentence.trim(), 10, height - (height*0.618) + fontsize + 6);
   }
 }
 
@@ -348,12 +349,15 @@ function drawText_extra () {
       continue;
     }
     let textlength = textWidth(splitString[i] + ' ');
+    if(splitString[i].length < 10){
+      textlength *= 1.618
+    }
     textFont("Helvetica", fontsize);
     noStroke();
     fill(255);
-    rect(0, (height+i*fontsize*2) - (height*0.618), textlength*1.1, fontsize*2);
+    rect(0, (height+i*fontsize*2) - (height*0.618), textlength*1.2, fontsize*2);
     fill(0);
-    text(splitString[i], 10, (height+i*fontsize*2) - (height*0.618) + fontsize + 6);
+    text(splitString[i].trim(), 10, (height+i*fontsize*2) - (height*0.618) + fontsize + 6);
   }
   
 }
