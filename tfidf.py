@@ -1,7 +1,12 @@
-from test_nltk_output import *
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from auto_completion import *
 import nltk
 import itertools
 from math import log
+import sqlite3
+
+
 
 sutta_dict_path = './sutta_dictionary.json'
 
@@ -91,6 +96,9 @@ def sutta_tfidf ():
         print("Usage: python[3.7] tfidf.py <search string>")
         return
     search_words = sys.argv[1]
+    conn = sqlite3.connect('suttas.db')
+    c = conn.cursor()
+
     r =[]
     r.append(search_words)
     create_directory_cache()
@@ -110,30 +118,57 @@ def sutta_tfidf ():
     print("inverse document frequency (idf) of", search_words, "=", idf)
 
     search_words = search_words.lower()
-    # print(s_analysis[0][1])
-    sunum = s_analysis[0][1] + ":"
-    sulines = load_a_sutta(sunum, directory_list)
-    # print(sulines)
-    sutta_tokens_dict = build_a_dict(sulines)
-    sutta_word_count = count_words(sutta_tokens_dict)
-    term_freq = sutta_tokens_dict[search_words] / sutta_word_count
-    print("sutta", s_analysis[0][1], "has", sutta_word_count, "words")
-    # print(json.dumps(sutta_tokens_dict, sort_keys=True, indent=4))
-    print ("term matches of", search_words, "in", s_analysis[0][1], "=", sutta_tokens_dict[search_words])
-    print ("term frequency (tf) of", search_words, "in", s_analysis[0][1], "=", term_freq)
-    tf_idf =  term_freq * idf
-    print ("tf-idf of", search_words, "in", s_analysis[0][1], "=", tf_idf)
+    sql_cmd_1 = "INSERT INTO word (word, idf) \n"
+    sql_cmd_2 = "SELECT '"+search_words+"', '"+str(idf)+"' \n"
+    sql_cmd_3 = "WHERE NOT EXISTS (SELECT * FROM word WHERE word = '"+search_words+"') "
+    # print (sql_cmd_1 + sql_cmd_2 + sql_cmd_3) 
+    c.execute(sql_cmd_1 + sql_cmd_2 + sql_cmd_3)
+    conn.commit()
+    c.execute("SELECT id FROM word WHERE word = '"+search_words+"'")
+    word_id = c.fetchone()[0]
+    # print(word_id)
 
-    if (False):
-        if (False):   
-            sutta_count = sst.build_dictionary(50)
-            print("finished reading", sutta_count, "suttas.")
-            sst.serialize_dict()
-        else:      
-            sst.open_serial_dict()
-        
-        sst.print_key_sutta_dict('buddha')
+    for sta in s_analysis:
+        print("-------------------------")
+        sunum = sta[1] + ":"
+        sulines = load_a_sutta(sunum, directory_list)
+        # print(sulines)
+        sutta_tokens_dict = build_a_dict(sulines)
+        sutta_word_count = count_words(sutta_tokens_dict)
+        occ = sutta_tokens_dict.get(search_words)
+        if occ:
+            term_freq = sutta_tokens_dict[search_words] / sutta_word_count
+            print("sutta", sta[1], "has", sutta_word_count, "words")
 
+            sql_cmd_1 = "INSERT INTO sutta (number,description,word_count) \n"
+            sql_cmd_2 = "SELECT '"+sta[1]+"', 'empty', '"+str(sutta_word_count)+"' \n"
+            sql_cmd_3 = "WHERE NOT EXISTS (SELECT * FROM sutta WHERE number = '"+sta[1]+"') "
+            # print (sql_cmd_1 + sql_cmd_2 + sql_cmd_3) 
+            c.execute(sql_cmd_1 + sql_cmd_2 + sql_cmd_3)
+            conn.commit()
+
+            # print(json.dumps(sutta_tokens_dict, sort_keys=True, indent=4))
+            print ("term matches of", search_words, "in", sta[1], "=", sutta_tokens_dict[search_words])
+            print ("term frequency (tf) of", search_words, "in", sta[1], "=", term_freq)
+            tf_idf =  term_freq * idf
+            print ("tf-idf of", search_words, "in", sta[1], "=", tf_idf)
+            
+            c.execute("SELECT id FROM sutta WHERE number = '"+sta[1]+"'")
+            sutta_id = c.fetchone()[0]
+            # print(sutta_id)
+
+            sql_cmd_1 = "INSERT INTO tfidf (sutta,word,matches,tf,tfidf) \n"
+            sql_cmd_2 = "VALUES ('"+str(sutta_id)+"', '"+str(word_id)+"', '"+str(occ)+"', '"+str(term_freq)+"', '"+str(tf_idf)+"')"
+            
+            print (sql_cmd_1 + sql_cmd_2) 
+            c.execute(sql_cmd_1 + sql_cmd_2)
+            conn.commit()
+
+
+        else:
+            print("term not found in", sta[1])
+
+    conn.close()
 
 def words_to_tfidf (directory_list, search_words):
     # if (len(sys.argv) < 2):

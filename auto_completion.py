@@ -1,5 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from text_analysis import *
-# import nltk
 
 class Sutta_search_nltk(Sutta_search):
     def __init__(self, cached_directories):
@@ -17,7 +18,6 @@ class Sutta_search_nltk(Sutta_search):
                     self.search_lines.append(line)
                     self.resolve_sutta_number (line)
                     res = re.split(self.search_string, line)
-                    # res = nltk.word_tokenize(res[1]) # do we need nltk? only for tokenizing?
                     res = res[1].split()
                     if (res):
                         res = res[0].rstrip(',.:!?\'\"”…-')
