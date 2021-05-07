@@ -20,7 +20,7 @@ let pali = [];
 let voice;
 let counter = 0;
 let pali_counter = 0;
-let voiceId =  54;
+let voiceId =  7;
 
   //Tessa 36
   //Google UK English Female 49
@@ -77,17 +77,18 @@ function setup() {
   createCanvas(1250,938);
   background(bg_img_1);
 
-  speech = new p5.Speech(); 
-  speech.onLoad = voiceReady;
+  speech = new p5.Speech(voiceReady); 
+  
+  // speech.onLoad = voiceReady;
   // one can forward verses only with interrupt = true;
   // otherwise speak calls are queued
   speech.interrupt = true;
   speech.started(startSpeaking);
   speech.ended(endSpeaking);
-
   function voiceReady() {
-    voice =  speech.voices[voiceId];
-    console.log('voice ready');
+    // console.log(speech.listVoices());
+    voice =  speech.setVoice('Google हिन्दी');
+    console.log(voice);
   }
 }
 
@@ -292,7 +293,8 @@ function speak_now () {
   sentence = verse[counter];
   speech.setRate(1);
   speech.setPitch(1);
-  speech.setVoice(voice.name);
+  voice =  speech.setVoice('Google हिन्दी');
+  // speech.setVoice(voice.name);
   speech.speak(sentence);
   
   counter+=1;
